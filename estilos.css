@@ -31,7 +31,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; scroll-padding-top: 40px; }
+html { scroll-behavior: smooth; scroll-padding-top: 40px; overflow-x: clip; }
 
 body {
   background: var(--negro);
@@ -88,6 +88,9 @@ input:focus-visible, select:focus-visible, summary:focus-visible {
   75% { transform: translate(-15px, -10px); }
   100% { transform: translate(0, 0); }
 }
+
+/* ============ BARRA MOBILE (oculta en desktop) ============ */
+.barra { display: none; }
 
 /* ============ SIDE-NAV ============ */
 .lateral {
@@ -687,27 +690,74 @@ h2 {
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 900px) {
+  html { scroll-padding-top: 76px; }
+
   .lateral { display: none; }
   .contenido { padding-left: 0; }
-  .seccion { padding: 88px 24px; }
-  .hero { grid-template-columns: 1fr; padding: 96px 24px 64px; min-height: 92svh; }
+
+  /* barra superior: marca + CTA (reemplaza a la side-nav) */
+  .barra {
+    display: flex; align-items: center; justify-content: space-between;
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 50;
+    padding: 12px 20px;
+    background: rgba(11, 11, 12, 0.82);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--divisor);
+  }
+  .barra__marca {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.18em;
+    color: var(--crema);
+  }
+  .barra__marca em { font-style: normal; color: var(--naranja); }
+  .barra__marca img { display: block; }
+  .barra__cta {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--crema);
+    text-decoration: none;
+    border: 1px solid var(--naranja);
+    padding: 9px 14px;
+  }
+
+  .seccion { padding: 80px 24px; }
+
+  /* los <br> de los títulos son de desktop: en mobile quiebra natural */
+  .seccion__cab h2 br { display: none; }
+
+  .hero { grid-template-columns: 1fr; padding: 92px 24px 56px; min-height: 0; gap: 8px; }
   .hero__bloque { max-width: 100%; }
   .hero__vertical { display: none; }
   .hero__marca {
     position: static; transform: none;
-    order: -1; margin-bottom: 32px;
+    order: -1; margin-bottom: 28px;
     align-self: center;
-    gap: 12px;
+    gap: 10px;
   }
-  .hero__marca img { width: min(46vw, 210px); }
-  .hero__marca p { font-size: 1.6rem; }
+  .hero__marca img { width: min(44vw, 200px); }
+  .hero__marca p { font-size: 1.5rem; }
   .hero__tag { display: none; }
+
+  /* servicios: que la tarjeta siguiente asome (hay más para deslizar) */
+  .servicios {
+    cursor: auto;
+    scroll-snap-type: x mandatory;
+    padding-right: 24px;
+  }
+  .servicio { flex: 0 0 min(78vw, 330px); scroll-snap-align: start; }
+  .cursor-scroll { display: none; }
+
   .paquetes { grid-template-columns: 1fr 1fr; }
   .proceso__fila { grid-template-columns: 1fr; }
+  .principios { gap: 72px; }
   .principio--der { align-items: flex-start; text-align: left; }
   .colofon { grid-template-columns: 1fr 1fr; }
-  .cursor-scroll { display: none; }
-  .servicios { cursor: auto; }
 }
 
 @media (max-width: 560px) {
@@ -715,6 +765,10 @@ h2 {
   .form { grid-template-columns: 1fr; }
   .colofon { grid-template-columns: 1fr; }
   .contacto__cta { margin-bottom: 56px; }
+
+  /* recorrido en columna, con la flecha bajando entre pasos */
+  .recorrido { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .recorrido__flecha { transform: rotate(90deg); margin-left: 22px; }
 }
 
 /* ============ MOVIMIENTO REDUCIDO ============ */
