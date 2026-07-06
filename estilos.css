@@ -165,7 +165,7 @@ h2 {
   font-family: var(--display);
   font-weight: 700;
   font-size: clamp(2.4rem, 6vw, 5rem);
-  line-height: 1.08; /* aire para las tildes */
+  line-height: 1.12; /* escala para español: aire real entre líneas con tilde */
   letter-spacing: -0.02em;
   text-transform: uppercase;
 }
@@ -194,11 +194,15 @@ h2 {
 .btn--lleno:hover { background: var(--naranja); color: var(--negro); }
 
 /* ============ HERO ============ */
+/* grilla real de dos columnas: el logo siempre alineado con el texto,
+   nunca recortado, en cualquier viewport */
 .hero {
   min-height: 100vh;
-  display: flex; flex-direction: column; justify-content: center;
-  align-items: flex-start;
-  padding: 0 56px 0 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: 40px;
+  padding: 40px 56px 40px 64px;
   position: relative;
 }
 
@@ -211,14 +215,14 @@ h2 {
   color: var(--minimo);
 }
 
-.hero__bloque { max-width: 64%; position: relative; z-index: 2; }
+.hero__bloque { position: relative; z-index: 2; }
 
 .hero__linea {
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(3rem, 8.2vw, 8rem);
-  line-height: 1.05; /* las tildes de las mayúsculas necesitan aire */
-  letter-spacing: -0.03em;
+  font-size: clamp(2.8rem, 7.2vw, 7rem);
+  line-height: 1.06; /* escala pensada para español: las tildes de Á/É/Ó necesitan ~15% extra */
+  letter-spacing: -0.02em;
   text-transform: uppercase;
   color: var(--crema);
 }
@@ -248,15 +252,14 @@ h2 {
 .hero__link:hover { color: var(--crema); }
 
 .hero__marca {
-  position: absolute; right: clamp(24px, 8vw, 130px); top: 50%;
-  transform: translateY(-50%);
   display: flex; flex-direction: column; align-items: center;
+  justify-self: center;
   gap: 20px;
   z-index: 1;
   pointer-events: none;
 }
 
-.hero__marca img { width: clamp(260px, 29vw, 400px); }
+.hero__marca img { width: min(100%, clamp(240px, 26vw, 380px)); }
 
 .hero__marca p {
   font-family: var(--display);
@@ -310,7 +313,7 @@ h2 {
   font-family: var(--display);
   font-weight: 700;
   font-size: 34px;
-  line-height: 1.1; /* aire para las tildes */
+  line-height: 1.12;
   text-transform: uppercase;
   letter-spacing: -0.02em;
   transition: color 0.35s var(--suave);
@@ -392,7 +395,7 @@ h2 {
   font-size: 24px;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  line-height: 1.05;
+  line-height: 1.15;
   margin-bottom: 14px;
 }
 
@@ -513,7 +516,7 @@ h2 {
   font-family: var(--display);
   font-weight: 700;
   font-size: 1.2rem;
-  line-height: 1.05;
+  line-height: 1.15;
   text-transform: uppercase;
   letter-spacing: -0.01em;
   overflow-wrap: break-word;
@@ -574,9 +577,9 @@ h2 {
 .principio h3 {
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(2.2rem, 7vw, 6.5rem);
-  line-height: 1.08; /* aire para las tildes */
-  letter-spacing: -0.03em;
+  font-size: clamp(2.2rem, 6.4vw, 6rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
 }
 
@@ -636,7 +639,7 @@ h2 {
   font-size: 20px;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  line-height: 1.1;
+  line-height: 1.15;
   margin-bottom: 12px;
 }
 
@@ -805,7 +808,7 @@ h2 {
   .lateral { display: none; }
   .contenido { padding-left: 0; }
   .seccion { padding: 88px 24px; }
-  .hero { padding: 96px 24px 64px; min-height: 92svh; }
+  .hero { grid-template-columns: 1fr; padding: 96px 24px 64px; min-height: 92svh; }
   .hero__bloque { max-width: 100%; }
   .hero__vertical { display: none; }
   .hero__marca {
