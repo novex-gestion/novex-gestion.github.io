@@ -544,31 +544,6 @@ h2 {
 .bento__celda:hover .bento__nota { opacity: 1; transform: none; }
 .bento__celda:hover::before, .bento__celda:hover::after { opacity: 1; }
 
-/* casos propios */
-.propios {
-  margin-top: 56px;
-  padding-top: 40px;
-  border-top: 1px solid var(--divisor);
-}
-
-.propios ul { list-style: none; display: grid; gap: 12px; }
-
-.propios li {
-  font-size: 11.5px;
-  line-height: 1.7;
-  color: var(--tenue);
-  letter-spacing: 0.03em;
-  padding-left: 20px;
-  position: relative;
-}
-.propios li::before {
-  content: '';
-  position: absolute; left: 0; top: 0.5em;
-  width: 12px; height: 8px;
-  background: linear-gradient(to top right, transparent 42%, var(--naranja) 42% 58%, transparent 58%);
-}
-.propios strong { color: var(--crema); font-weight: 500; letter-spacing: 0.08em; }
-
 /* ============ MÉTODO ============ */
 .principios { display: flex; flex-direction: column; gap: 104px; }
 
