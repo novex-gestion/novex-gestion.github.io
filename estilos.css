@@ -401,27 +401,7 @@ h2 {
 
 .paquete__desc { font-size: 11.5px; line-height: 1.7; color: var(--tenue); }
 
-.paquete__precio {
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 20px;
-  letter-spacing: -0.01em;
-  color: var(--crema);
-  margin-top: 20px;
-  line-height: 1.3;
-}
-.paquete__precio span { font-size: 11px; color: var(--tenue-2); letter-spacing: 0.1em; }
-.paquete__precio em {
-  display: block;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 10.5px;
-  color: var(--tenue-2);
-  letter-spacing: 0.06em;
-  margin-top: 4px;
-}
-.paquete--estrella .paquete__precio { color: var(--naranja-claro); }
-
+.paquete--estrella 
 .paquete ul {
   list-style: none;
   margin-top: 20px;
