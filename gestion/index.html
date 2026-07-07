@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0b0b0c">
+  <title>NOVEX · Gestión</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css?v=1">
+</head>
+<body>
+  <div class="fondo-grilla" aria-hidden="true"></div>
+
+  <!-- ============ LOGIN ============ -->
+  <section id="pantalla-login" class="login" hidden>
+    <div class="login__caja">
+      <img src="../assets/novex-iso-dark.png" alt="" width="52" height="52">
+      <h1 class="login__titulo">NOVE<em>X</em></h1>
+      <p class="login__sub mono">/ Gestión interna</p>
+
+      <form id="form-login" autocomplete="on">
+        <label class="campo">
+          <span class="campo__nombre mono">Email</span>
+          <input type="email" id="login-email" required autocomplete="username" inputmode="email">
+        </label>
+        <label class="campo">
+          <span class="campo__nombre mono">Contraseña</span>
+          <input type="password" id="login-clave" required autocomplete="current-password">
+        </label>
+        <p id="login-error" class="login__error mono" hidden></p>
+        <button type="submit" class="boton boton--lleno" id="login-entrar">Entrar</button>
+        <button type="button" class="login__olvide mono" id="login-olvide">Olvidé mi contraseña</button>
+      </form>
+
+      <p id="login-pendiente" class="login__aviso mono" hidden>
+        // Falta conectar la base de datos.<br>El acceso se habilita al completar la configuración de Firebase.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ APP ============ -->
+  <div id="pantalla-app" hidden>
+    <header class="tope">
+      <a class="tope__marca" href="#/pipeline">
+        <img src="../assets/novex-iso-dark.png" alt="" width="24" height="24">
+        <span class="tope__nombre">NOVE<em>X</em></span>
+        <span class="tope__mod mono">GESTIÓN</span>
+      </a>
+      <div class="tope__usuario">
+        <span id="usuario-nombre" class="mono"></span>
+        <button id="btn-salir" class="tope__salir mono" type="button">Salir</button>
+      </div>
+    </header>
+
+    <nav class="nav" id="nav" aria-label="Módulos">
+      <a href="#/pipeline" data-ruta="pipeline" class="nav__item">
+        <span class="nav__num mono">01</span><span class="nav__rotulo mono">Pipeline</span>
+      </a>
+      <a href="#/clientes" data-ruta="clientes" class="nav__item">
+        <span class="nav__num mono">02</span><span class="nav__rotulo mono">Clientes</span>
+      </a>
+      <a href="#/cobranzas" data-ruta="cobranzas" class="nav__item">
+        <span class="nav__num mono">03</span><span class="nav__rotulo mono">Cobros</span>
+      </a>
+      <a href="#/tareas" data-ruta="tareas" class="nav__item">
+        <span class="nav__num mono">04</span><span class="nav__rotulo mono">Tareas</span>
+      </a>
+    </nav>
+
+    <main id="vista" class="vista"></main>
+  </div>
+
+  <div id="modal-raiz"></div>
+  <div id="toast-raiz" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js?v=1"></script>
+</body>
+</html>
