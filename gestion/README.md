@@ -5,12 +5,21 @@ CRM interno de NOVEX. Vive en `https://novex-gestion.github.io/gestion/` (link d
 
 ## Módulos
 
-1. **Pipeline** — leads por etapa (contacto → auditoría → propuesta → ganado/perdido),
+1. **Inicio** — alertas del día (consultas web, cuotas vencidas/por vencer, leads fríos
+   5+ días, tareas) + P&L del mes (cobrado − gastos), gráfico 6 meses, margen por cliente.
+2. **Pipeline** — leads por etapa (contacto → auditoría → propuesta → ganado/perdido),
    kanban con botones ‹ › y drag & drop en desktop. Ganado ofrece convertir en cliente.
-2. **Clientes** — padrón con ficha 360°: datos, seguimiento (interacciones) y pagos.
-3. **Cobros** — cuotas mensuales por cliente (ID `clienteId_YYYY-MM`, regenerar no
-   duplica), tablero recurrente/cobrado/pendiente/vencido por período.
-4. **Tareas** — pendientes por socio y por cliente, prioridad y vencimiento.
+   Bandeja de consultas del formulario de la landing (colección `consultas`, creación
+   pública validada por reglas) → un click las convierte en lead.
+3. **Clientes** — padrón con ficha 360°: datos, seguimiento (interacciones), pagos y
+   plantillas de WhatsApp (seguimiento / cobro / bienvenida).
+4. **Cobros** — cuotas mensuales por cliente (ID `clienteId_YYYY-MM`, regenerar no
+   duplica), tablero recurrente/cobrado/pendiente/vencido, recordatorio por WhatsApp.
+5. **Gastos** — puntuales y fijos recurrentes (ID `fijoId_YYYY-MM`), USD/ARS con tipo
+   de cambio, categoría, cliente opcional (margen) y quién lo pagó (saldo entre socios).
+6. **Tareas** — pendientes por socio y por cliente, prioridad y vencimiento.
+
+Extra: búsqueda global (Ctrl+K o ⌕ del tope) sobre leads/clientes/tareas/gastos.
 
 ## Seguridad
 

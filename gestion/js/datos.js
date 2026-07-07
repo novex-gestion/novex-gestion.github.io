@@ -3,12 +3,17 @@
 import { collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db } from './firebase.js';
 
+const COLECCIONES = ['leads', 'clientes', 'pagos', 'tareas', 'gastos', 'gastos_fijos', 'consultas'];
+
 export const cache = {
   leads: [],
   clientes: [],
   pagos: [],
   tareas: [],
-  listo: { leads: false, clientes: false, pagos: false, tareas: false },
+  gastos: [],
+  gastos_fijos: [],
+  consultas: [],
+  listo: Object.fromEntries(COLECCIONES.map((c) => [c, false])),
 };
 
 const oyentes = new Set();
@@ -21,7 +26,7 @@ export function alCambiar(fn) {
 
 export function conectarDatos() {
   if (paradas.length) return;
-  for (const col of ['leads', 'clientes', 'pagos', 'tareas']) {
+  for (const col of COLECCIONES) {
     paradas.push(
       onSnapshot(collection(db, col), (snap) => {
         cache[col] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -37,6 +42,5 @@ export function conectarDatos() {
 export function desconectarDatos() {
   for (const p of paradas) p();
   paradas = [];
-  cache.leads = []; cache.clientes = []; cache.pagos = []; cache.tareas = [];
-  cache.listo = { leads: false, clientes: false, pagos: false, tareas: false };
+  for (const c of COLECCIONES) { cache[c] = []; cache.listo[c] = false; }
 }

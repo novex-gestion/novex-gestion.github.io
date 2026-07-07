@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="estilos.css?v=1">
+  <link rel="stylesheet" href="estilos.css?v=2">
 </head>
 <body>
   <div class="fondo-grilla" aria-hidden="true"></div>
@@ -45,29 +45,36 @@
   <!-- ============ APP ============ -->
   <div id="pantalla-app" hidden>
     <header class="tope">
-      <a class="tope__marca" href="#/pipeline">
+      <a class="tope__marca" href="#/inicio">
         <img src="../assets/novex-iso-dark.png" alt="" width="24" height="24">
         <span class="tope__nombre">NOVE<em>X</em></span>
         <span class="tope__mod mono">GESTIÓN</span>
       </a>
       <div class="tope__usuario">
+        <button id="btn-buscar" class="tope__buscar mono" type="button" aria-label="Buscar (Ctrl+K)">⌕ Buscar</button>
         <span id="usuario-nombre" class="mono"></span>
         <button id="btn-salir" class="tope__salir mono" type="button">Salir</button>
       </div>
     </header>
 
     <nav class="nav" id="nav" aria-label="Módulos">
+      <a href="#/inicio" data-ruta="inicio" class="nav__item">
+        <span class="nav__num mono">01</span><span class="nav__rotulo mono">Inicio</span>
+      </a>
       <a href="#/pipeline" data-ruta="pipeline" class="nav__item">
-        <span class="nav__num mono">01</span><span class="nav__rotulo mono">Pipeline</span>
+        <span class="nav__num mono">02</span><span class="nav__rotulo mono">Pipeline</span>
       </a>
       <a href="#/clientes" data-ruta="clientes" class="nav__item">
-        <span class="nav__num mono">02</span><span class="nav__rotulo mono">Clientes</span>
+        <span class="nav__num mono">03</span><span class="nav__rotulo mono">Clientes</span>
       </a>
       <a href="#/cobranzas" data-ruta="cobranzas" class="nav__item">
-        <span class="nav__num mono">03</span><span class="nav__rotulo mono">Cobros</span>
+        <span class="nav__num mono">04</span><span class="nav__rotulo mono">Cobros</span>
+      </a>
+      <a href="#/gastos" data-ruta="gastos" class="nav__item">
+        <span class="nav__num mono">05</span><span class="nav__rotulo mono">Gastos</span>
       </a>
       <a href="#/tareas" data-ruta="tareas" class="nav__item">
-        <span class="nav__num mono">04</span><span class="nav__rotulo mono">Tareas</span>
+        <span class="nav__num mono">06</span><span class="nav__rotulo mono">Tareas</span>
       </a>
     </nav>
 
@@ -77,6 +84,6 @@
   <div id="modal-raiz"></div>
   <div id="toast-raiz" aria-live="polite"></div>
 
-  <script type="module" src="js/app.js?v=3"></script>
+  <script type="module" src="js/app.js?v=4"></script>
 </body>
 </html>

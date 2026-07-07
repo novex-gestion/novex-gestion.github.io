@@ -43,6 +43,37 @@ export const ORIGENES = [
   { id: 'otro',        nombre: 'Otro' },
 ];
 
+export const CATEGORIAS_GASTO = [
+  { id: 'herramientas', nombre: 'Herramientas y suscripciones' },
+  { id: 'fotografo',    nombre: 'Fotógrafo' },
+  { id: 'pauta',        nombre: 'Pauta' },
+  { id: 'impuestos',    nombre: 'Impuestos y bancos' },
+  { id: 'viaticos',     nombre: 'Viáticos' },
+  { id: 'otros',        nombre: 'Otros' },
+];
+
+export function nombreCategoria(id) {
+  const c = CATEGORIAS_GASTO.find((c) => c.id === id);
+  return c ? c.nombre : id || '—';
+}
+
+export function nombrePagador(id) {
+  if (id === 'novex') return 'Cuenta NOVEX';
+  return nombreSocio(id);
+}
+
+// Plantillas de WhatsApp — {campo} se reemplaza al abrir.
+export const PLANTILLAS_WA = {
+  seguimientoLead:
+    'Hola {contacto}! Te escribo de NOVEX por {negocio} — ¿pudiste pensar lo que hablamos? Cualquier duda me decís y lo vemos.',
+  seguimientoCliente:
+    'Hola {contacto}! ¿Cómo viene todo con {negocio}? Te escribo para hacer un repaso rápido de cómo vamos y qué sigue este mes.',
+  cobro:
+    'Hola {contacto}! Te acerco el recordatorio de la cuota de {mes} de NOVEX ({monto}). Cuando puedas me mandás el comprobante. ¡Gracias!',
+  bienvenida:
+    '¡Bienvenido/a a NOVEX, {contacto}! Ya estamos arrancando con {negocio}. En estos días te escribimos para coordinar los primeros pasos. 🚀',
+};
+
 export const TIPOS_INTERACCION = [
   { id: 'whatsapp', nombre: 'WhatsApp' },
   { id: 'llamada',  nombre: 'Llamada' },

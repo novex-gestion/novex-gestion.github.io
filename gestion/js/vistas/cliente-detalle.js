@@ -3,9 +3,9 @@ import {
   collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db, auth } from '../firebase.js';
-import { TIPOS_INTERACCION, nombrePaquete, nombreSocio } from '../config.js';
+import { TIPOS_INTERACCION, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js';
 import { cache, alCambiar } from '../datos.js';
-import { esc, fmtUsd, fmtFecha, aFecha, nombrePeriodo, modal, confirmar, toast, selectHtml } from '../ui.js';
+import { esc, fmtUsd, fmtFecha, aFecha, nombrePeriodo, modal, confirmar, toast, selectHtml, linkWa } from '../ui.js';
 import { formularioCliente } from './clientes.js';
 
 const NOMBRE_ESTADO = { activo: 'Activo', pausado: 'Pausado', baja: 'Baja' };
@@ -69,6 +69,21 @@ export function montarClienteDetalle(raiz, id) {
             ${dato('Alta por', esc(nombreSocio(c.creadoPor)))}
           </div>
           ${c.notasGenerales ? `<p class="modal__nota" style="margin-top:12px">// ${esc(c.notasGenerales)}</p>` : ''}
+          ${telLimpio ? (() => {
+            const base = { contacto: c.contacto || '', negocio: c.negocio || '' };
+            const pendiente = pagos.find((p) => p.estado === 'pendiente');
+            const waSeg = linkWa(c.telefono, PLANTILLAS_WA.seguimientoCliente, base);
+            const waCobro = pendiente ? linkWa(c.telefono, PLANTILLAS_WA.cobro, {
+              ...base, mes: nombrePeriodo(pendiente.periodo), monto: fmtUsd(pendiente.montoUsd),
+            }) : null;
+            const waBienv = linkWa(c.telefono, PLANTILLAS_WA.bienvenida, base);
+            return `
+              <div class="plantillas">
+                <a class="boton boton--chico" href="${waSeg}" target="_blank" rel="noopener">WA: seguimiento</a>
+                ${waCobro ? `<a class="boton boton--chico" href="${waCobro}" target="_blank" rel="noopener">WA: recordatorio de cobro</a>` : ''}
+                <a class="boton boton--chico" href="${waBienv}" target="_blank" rel="noopener">WA: bienvenida</a>
+              </div>`;
+          })() : ''}
         </section>
 
         <section class="panel">

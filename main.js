@@ -126,6 +126,22 @@ if (form) {
       (rubro ? ` (${rubro.toLowerCase()})` : '') +
       `. Quiero pedir la auditoría gratis de NOVEX.`;
 
+    // Registrar la consulta en la gestión (best-effort, no bloquea el WhatsApp)
+    fetch('https://firestore.googleapis.com/v1/projects/novex-gestion/databases/(default)/documents/consultas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fields: {
+          nombre: { stringValue: nombre.slice(0, 120) },
+          negocio: { stringValue: negocio.slice(0, 120) },
+          rubro: { stringValue: (rubro || '').slice(0, 60) },
+          origen: { stringValue: 'web' },
+          estado: { stringValue: 'nueva' },
+          fecha: { timestampValue: new Date().toISOString() },
+        },
+      }),
+    }).catch(() => {});
+
     window.open(
       `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(mensaje)}`,
       '_blank',

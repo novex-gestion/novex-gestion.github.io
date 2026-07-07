@@ -130,6 +130,19 @@ export function toast(mensaje, esError = false) {
   setTimeout(() => t.remove(), 3200);
 }
 
+// wa.me con plantilla rellenada ({campo} → valor).
+export function linkWa(telefono, plantilla, valores = {}) {
+  const tel = String(telefono || '').replace(/\D/g, '');
+  if (!tel) return null;
+  const texto = plantilla.replace(/\{(\w+)\}/g, (_, k) => valores[k] ?? '');
+  return `https://wa.me/${tel}?text=${encodeURIComponent(texto)}`;
+}
+
+// Normaliza para búsqueda: minúsculas y sin tildes.
+export function normalizar(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
 export function selectHtml(opciones, seleccionado, conVacio = null) {
   let html = conVacio != null ? `<option value="">${esc(conVacio)}</option>` : '';
   for (const o of opciones) {

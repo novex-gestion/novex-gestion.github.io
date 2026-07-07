@@ -227,6 +227,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 }
 
 .tope__usuario { display: flex; align-items: center; gap: 12px; }
+.tope__buscar { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tenue-2); border: 1px solid var(--borde); padding: 4px 9px; }
+.tope__buscar:hover { border-color: var(--naranja); color: var(--naranja-claro); }
 #usuario-nombre { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--naranja-claro); }
 .tope__salir { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--minimo); }
 .tope__salir:hover { color: var(--tenue); }
@@ -263,7 +265,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .nav__item.activo::before { transform: scaleX(1); }
 .nav__num { font-size: 9px; color: var(--minimo); letter-spacing: 0.1em; }
 .nav__item.activo .nav__num { color: var(--naranja); }
-.nav__rotulo { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; }
+.nav__rotulo { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; }
 
 /* ============ VISTA ============ */
 .vista {
@@ -544,6 +546,24 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 }
 .toast--error { background: var(--naranja); }
 @keyframes toast-entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ============ INICIO: alertas + gráfico ============ */
+.alerta--rojo { border-left: 2px solid var(--rojo); }
+.alerta--naranja { border-left: 2px solid var(--naranja); }
+.alerta--crema { border-left: 2px solid var(--crema); }
+
+.grafico { display: flex; gap: 10px; align-items: flex-end; height: 130px; }
+.grafico__mes { flex: 1; display: flex; flex-direction: column; height: 100%; min-width: 0; }
+.grafico__barras { flex: 1; display: flex; gap: 3px; align-items: flex-end; justify-content: center; }
+.grafico__barra { width: 14px; min-height: 2px; }
+.grafico__barra--cobrado { background: var(--crema); }
+.grafico__barra--gasto { background: var(--rojo); }
+.grafico__rotulo { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--minimo); text-align: center; margin-top: 6px; }
+
+/* ============ CONSULTAS WEB / PLANTILLAS ============ */
+.panel--consultas { border-color: var(--naranja-oscuro); margin-bottom: 16px; }
+.plantillas { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.plantillas .boton { text-decoration: none; }
 
 /* ============ VACÍO / CARGANDO ============ */
 .vacio {

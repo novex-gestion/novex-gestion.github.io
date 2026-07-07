@@ -6,11 +6,14 @@ import { auth, configLista } from './firebase.js';
 import { SOCIOS, nombreSocio } from './config.js';
 import { conectarDatos, desconectarDatos } from './datos.js';
 import { toast } from './ui.js';
+import { montarInicio } from './vistas/inicio.js';
 import { montarPipeline } from './vistas/pipeline.js';
 import { montarClientes } from './vistas/clientes.js';
 import { montarClienteDetalle } from './vistas/cliente-detalle.js';
 import { montarCobranzas } from './vistas/cobranzas.js';
 import { montarTareas } from './vistas/tareas.js';
+import { montarGastos } from './vistas/gastos.js';
+import { iniciarBusqueda } from './busqueda.js';
 
 const pantallaLogin = document.getElementById('pantalla-login');
 const pantallaApp = document.getElementById('pantalla-app');
@@ -28,6 +31,8 @@ if (!configLista) {
 }
 
 function iniciar() {
+  iniciarBusqueda();
+
   // ---- Login ----
   formLogin.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -110,14 +115,16 @@ function mensajeError(err) {
 let limpiarVista = null;
 
 const RUTAS = {
+  inicio: montarInicio,
   pipeline: montarPipeline,
   clientes: montarClientes,
   cobranzas: montarCobranzas,
   tareas: montarTareas,
+  gastos: montarGastos,
 };
 
 function navegar() {
-  const hash = location.hash.replace(/^#\/?/, '') || 'pipeline';
+  const hash = location.hash.replace(/^#\/?/, '') || 'inicio';
   const [ruta, parametro] = hash.split('/');
 
   if (limpiarVista) { limpiarVista(); limpiarVista = null; }
@@ -134,7 +141,7 @@ function navegar() {
     } else if (RUTAS[ruta]) {
       limpiarVista = RUTAS[ruta](vista);
     } else {
-      location.hash = '#/pipeline';
+      location.hash = '#/inicio';
     }
   } catch (err) {
     console.error(err);

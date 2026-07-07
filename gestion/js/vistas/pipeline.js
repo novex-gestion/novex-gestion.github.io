@@ -3,10 +3,10 @@ import {
   collection, doc, addDoc, updateDoc, deleteDoc, writeBatch, arrayUnion, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db, auth, stamp } from '../firebase.js';
-import { ETAPAS, PAQUETES, ORIGENES, nombrePaquete, nombreSocio } from '../config.js';
+import { ETAPAS, PAQUETES, ORIGENES, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js';
 import { cache, alCambiar } from '../datos.js';
 import {
-  esc, fmtUsd, fmtFecha, haceDias, aFecha, modal, confirmar, toast, selectHtml, fechaDeInput, aInputFecha,
+  esc, fmtUsd, fmtFecha, haceDias, aFecha, modal, confirmar, toast, selectHtml, fechaDeInput, aInputFecha, linkWa,
 } from '../ui.js';
 
 export function montarPipeline(raiz) {
@@ -18,6 +18,7 @@ export function montarPipeline(raiz) {
       </div>
       <button type="button" class="boton boton--lleno boton--chico" id="btn-nuevo-lead">+ Lead</button>
     </div>
+    <div id="consultas-web"></div>
     <div class="kanban" id="kanban"></div>`;
 
   raiz.querySelector('#btn-nuevo-lead').addEventListener('click', () => formularioLead(null));
@@ -25,6 +26,7 @@ export function montarPipeline(raiz) {
   function pintar() {
     const kanban = raiz.querySelector('#kanban');
     if (!kanban) return;
+    pintarConsultas(raiz.querySelector('#consultas-web'));
     const abiertos = cache.leads.filter((l) => l.etapa !== 'ganado' && l.etapa !== 'perdido');
     const valorAbierto = abiertos.reduce((s, l) => s + (Number(l.valorEstimadoUsd) || 0), 0);
     raiz.querySelector('#pipe-resumen').textContent =
@@ -82,8 +84,70 @@ export function montarPipeline(raiz) {
   }
 
   pintar();
-  const parar = alCambiar((col) => { if (col === 'leads') pintar(); });
+  const parar = alCambiar((col) => { if (col === 'leads' || col === 'consultas') pintar(); });
   return parar;
+}
+
+// ============ CONSULTAS DESDE LA WEB ============
+function pintarConsultas(caja) {
+  if (!caja) return;
+  const nuevas = cache.consultas
+    .filter((c) => c.estado === 'nueva')
+    .sort((a, b) => (aFecha(b.fecha)?.getTime() || 0) - (aFecha(a.fecha)?.getTime() || 0));
+
+  if (!nuevas.length) { caja.innerHTML = ''; return; }
+
+  caja.innerHTML = `
+    <section class="panel panel--consultas">
+      <h2 class="panel__titulo">Consultas desde la web (${nuevas.length})</h2>
+      <div class="filas">
+        ${nuevas.map((c) => `
+          <div class="fila" data-id="${esc(c.id)}">
+            <div class="fila__principal">
+              <p class="fila__nombre" style="font-size:14px">${esc(c.negocio)}</p>
+              <p class="fila__detalle">${esc([c.nombre, c.rubro, fmtFecha(c.fecha)].filter(Boolean).join(' · '))}</p>
+            </div>
+            <div class="fila__lado" style="flex-direction:row; align-items:center; gap:8px">
+              <button type="button" class="boton boton--lleno boton--chico" data-crear>Crear lead</button>
+              <button type="button" class="boton boton--chico boton--peligro" data-descartar aria-label="Descartar">×</button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </section>`;
+
+  caja.querySelectorAll('.fila').forEach((el) => {
+    const consulta = nuevas.find((c) => c.id === el.dataset.id);
+    el.querySelector('[data-crear]').addEventListener('click', async () => {
+      try {
+        const lote = writeBatch(db);
+        lote.set(doc(collection(db, 'leads')), {
+          negocio: consulta.negocio || '',
+          contacto: consulta.nombre || '',
+          telefono: '', email: '', instagram: '',
+          rubro: consulta.rubro || '',
+          zona: '',
+          origen: 'web',
+          paqueteInteres: null,
+          valorEstimadoUsd: null,
+          etapa: 'contacto',
+          etapaCambiadaEl: serverTimestamp(),
+          notas: [{ texto: 'Entró por el formulario de la web.', fecha: new Date(), por: auth.currentUser.uid }],
+          motivoPerdido: '',
+          clienteId: null,
+          ...stamp(true),
+        });
+        lote.update(doc(db, 'consultas', consulta.id), { estado: 'procesada', ...stamp() });
+        await lote.commit();
+        toast('Lead creado desde la consulta');
+      } catch (err) { console.error(err); toast('No se pudo crear', true); }
+    });
+    el.querySelector('[data-descartar]').addEventListener('click', async () => {
+      try {
+        await updateDoc(doc(db, 'consultas', consulta.id), { estado: 'descartada', ...stamp() });
+        toast('Consulta descartada');
+      } catch (err) { console.error(err); toast('No se pudo descartar', true); }
+    });
+  });
 }
 
 function tarjetaLead(l) {
@@ -237,10 +301,13 @@ function ofrecerConversion(lead) {
 }
 
 // ============ DETALLE DE LEAD ============
-function detalleLead(id) {
+export function detalleLead(id) {
   const lead = cache.leads.find((l) => l.id === id);
   if (!lead) return;
   const notas = (lead.notas || []).slice().reverse();
+  const wa = linkWa(lead.telefono, PLANTILLAS_WA.seguimientoLead, {
+    contacto: lead.contacto || '', negocio: lead.negocio || '',
+  });
 
   const m = modal(lead.negocio, `
     <div class="modal__cuerpo">
@@ -259,6 +326,7 @@ function detalleLead(id) {
         ${dato('Alta', fmtFecha(lead.creadoEl))}
       </div>
       ${lead.motivoPerdido ? `<p class="modal__nota">// Perdido: ${esc(lead.motivoPerdido)}</p>` : ''}
+      ${wa ? `<a class="boton boton--chico" href="${wa}" target="_blank" rel="noopener" style="text-decoration:none">WhatsApp: seguimiento →</a>` : ''}
       ${lead.clienteId ? `<a class="boton boton--chico" href="#/clientes/${esc(lead.clienteId)}" data-cerrar style="text-decoration:none">Ver ficha de cliente →</a>` : ''}
 
       <div>

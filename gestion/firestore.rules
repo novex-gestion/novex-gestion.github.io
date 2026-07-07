@@ -11,6 +11,23 @@ service cloud.firestore {
           'NUTgVP6JJAbvJg2ay47GtDgpxrk1'
         ];
     }
+    // El formulario público de la landing crea consultas (solo crear,
+    // solo con esta forma exacta); leer/gestionar queda para los socios.
+    match /consultas/{id} {
+      allow create: if request.resource.data.keys().hasOnly(
+          ['nombre', 'negocio', 'rubro', 'origen', 'estado', 'fecha'])
+        && request.resource.data.estado == 'nueva'
+        && request.resource.data.origen == 'web'
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() > 0
+        && request.resource.data.nombre.size() <= 120
+        && request.resource.data.negocio is string
+        && request.resource.data.negocio.size() > 0
+        && request.resource.data.negocio.size() <= 120
+        && request.resource.data.rubro is string
+        && request.resource.data.rubro.size() <= 60
+        && request.resource.data.fecha is timestamp;
+    }
     match /{document=**} {
       allow read, write: if esSocio();
     }

@@ -4,10 +4,11 @@ import {
   doc, setDoc, updateDoc, deleteDoc, writeBatch,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db, stamp } from '../firebase.js';
+import { PLANTILLAS_WA } from '../config.js';
 import { cache, alCambiar } from '../datos.js';
 import {
   esc, fmtUsd, fmtFecha, aFecha, aInputFecha, fechaDeInput, periodoDe, nombrePeriodo, sumarMeses,
-  modal, confirmar, toast,
+  modal, confirmar, toast, linkWa,
 } from '../ui.js';
 
 export function montarCobranzas(raiz) {
@@ -123,9 +124,15 @@ export function montarCobranzas(raiz) {
     if (!p) return;
 
     if (p.estado === 'pendiente') {
+      const cliente = cache.clientes.find((c) => c.id === p.clienteId);
+      const wa = cliente ? linkWa(cliente.telefono, PLANTILLAS_WA.cobro, {
+        contacto: cliente.contacto || '', negocio: cliente.negocio || '',
+        mes: nombrePeriodo(p.periodo), monto: fmtUsd(p.montoUsd),
+      }) : null;
       const m = modal(`Cobrar: ${p.clienteNegocio}`, `
         <form id="form-cobrar">
           <p class="modal__nota">// Cuota de ${esc(nombrePeriodo(p.periodo))} · vence ${esc(fmtFecha(p.vence))}</p>
+          ${wa ? `<a class="boton boton--chico" href="${wa}" target="_blank" rel="noopener" style="text-decoration:none; align-self:flex-start">WA: recordar cobro →</a>` : ''}
           <div class="campos-2">
             <label class="campo">
               <span class="campo__nombre mono">Monto (USD)</span>
