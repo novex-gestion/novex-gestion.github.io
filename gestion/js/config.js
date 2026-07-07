@@ -16,8 +16,8 @@ export const FIREBASE_CONFIG = {
 
 // UID de Firebase Auth → socio
 export const SOCIOS = {
-  cTh48LC9BIPkE4BK4GeKWCsvnJm1: { nombre: 'Iván' },
-  WWVdEhbOP5e1nIDffNzDGUecIa12: { nombre: 'Juan' },
+  '0H6nIW0JbzUI3igshz4HhLf66le2': { nombre: 'Iván' },
+  NUTgVP6JJAbvJg2ay47GtDgpxrk1: { nombre: 'Juan' },
 };
 
 export const ETAPAS = [
