@@ -124,7 +124,7 @@ if (form) {
     const mensaje =
       `Hola! Soy ${nombre}, de ${negocio}` +
       (rubro ? ` (${rubro.toLowerCase()})` : '') +
-      `. Quiero pedir la auditoría gratis de NOVEX.`;
+      `. Vi la página y quiero pedir la auditoría gratis.`;
 
     // Registrar la consulta en la gestión (best-effort, no bloquea el WhatsApp)
     fetch('https://firestore.googleapis.com/v1/projects/novex-gestion/databases/(default)/documents/consultas', {
