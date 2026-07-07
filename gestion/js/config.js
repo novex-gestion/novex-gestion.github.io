@@ -5,15 +5,19 @@
 // autentican: pueden estar en el repo sin riesgo.
 // ============================================================
 
-// Pegar acá el objeto de "Configuración del proyecto → Tus apps"
-// de la consola de Firebase. Mientras sea null, la app muestra
-// el aviso de configuración pendiente.
-export const FIREBASE_CONFIG = null;
+export const FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyCt86XOBMMWffP1oRzgzh7vEJOwlQrqGOc',
+  authDomain: 'novex-gestion.firebaseapp.com',
+  projectId: 'novex-gestion',
+  storageBucket: 'novex-gestion.firebasestorage.app',
+  messagingSenderId: '353788063180',
+  appId: '1:353788063180:web:dc5246d2dae85fa5b20169',
+};
 
-// UID de Firebase Auth → socio (se completa al crear los usuarios)
+// UID de Firebase Auth → socio
 export const SOCIOS = {
-  // 'UID_IVAN': { nombre: 'Iván' },
-  // 'UID_JUAN': { nombre: 'Juan' },
+  cTh48LC9BIPkE4BK4GeKWCsvnJm1: { nombre: 'Iván' },
+  WWVdEhbOP5e1nIDffNzDGUecIa12: { nombre: 'Juan' },
 };
 
 export const ETAPAS = [

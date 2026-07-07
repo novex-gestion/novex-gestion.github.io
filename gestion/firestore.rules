@@ -1,15 +1,14 @@
 // NOVEX GESTIÓN — Security Rules de Firestore.
 // Copia documental: la versión vigente se pega en la consola de
-// Firebase (Firestore → Reglas → Publicar). Reemplazar UID_IVAN
-// y UID_JUAN por los UIDs reales al crear los usuarios.
+// Firebase (Firestore → Reglas → Publicar).
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function esSocio() {
       return request.auth != null
         && request.auth.uid in [
-          'UID_IVAN',
-          'UID_JUAN'
+          'cTh48LC9BIPkE4BK4GeKWCsvnJm1',
+          'WWVdEhbOP5e1nIDffNzDGUecIa12'
         ];
     }
     match /{document=**} {
