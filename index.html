@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="estilos.css?v=6">
+  <link rel="stylesheet" href="estilos.css?v=7">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -112,17 +112,17 @@
       <div class="servicios" id="pista-servicios">
         <article class="servicio">
           <div class="servicio__cab mono"><span>No. 01</span><span class="servicio__tag">Presencia</span></div>
-          <h3>Páginas web</h3>
+          <h3>Web + e&#8209;commerce</h3>
           <div class="servicio__linea"></div>
-          <p class="mono">Tu página web, la vidriera abierta 24/7: que te encuentren en Google, que se entienda
-          qué vendés y que te escriban fácil.</p>
+          <p class="mono">Tu página y tu tienda online, la vidriera abierta 24/7: que te encuentren
+          en Google y que te puedan comprar ahí mismo.</p>
         </article>
         <article class="servicio">
           <div class="servicio__cab mono"><span>No. 02</span><span class="servicio__tag">Orden</span></div>
           <h3>Sistema de gestión</h3>
           <div class="servicio__linea"></div>
-          <p class="mono">Un sistema simple para manejar tu negocio: ventas, clientes, stock
-          y números en un solo lugar, sin planillas sueltas.</p>
+          <p class="mono">Ventas, clientes, stock y números en un solo lugar, con integraciones
+          a las herramientas que ya usás. Sin planillas sueltas.</p>
         </article>
         <article class="servicio">
           <div class="servicio__cab mono"><span>No. 03</span><span class="servicio__tag">Redes</span></div>
@@ -153,7 +153,11 @@
           cerca, antes que la competencia.</p>
         </article>
       </div>
-      <div class="cursor-scroll mono" id="cursor-scroll" aria-hidden="true">DESLIZÁ →</div>
+      <div class="servicios__nav" aria-hidden="true">
+        <button type="button" class="servicios__flecha" data-slide="-1" aria-label="Anterior">‹</button>
+        <span class="mono servicios__pista">deslizá →</span>
+        <button type="button" class="servicios__flecha" data-slide="1" aria-label="Siguiente">›</button>
+      </div>
     </section>
 
     <!-- ============ PAQUETES ============ -->
@@ -188,10 +192,10 @@
           <p class="paquete__tag mono">Para existir online</p>
           <h3>Arranque</h3>
           <p class="paquete__desc mono">Lo básico bien hecho: que te encuentren,
-          que se entienda qué vendés, que te puedan comprar o escribir.</p>
+          que se entienda qué vendés y que te puedan comprar ahí mismo.</p>
           <ul class="mono">
-            <li>Web propia que vende</li>
-            <li>Google y Maps al día</li>
+            <li>Web + e-commerce que vende</li>
+            <li>Gestión de Google y Maps</li>
             <li>Marca e Instagram ordenados</li>
           </ul>
         </article>
@@ -203,9 +207,9 @@
           andando juntos: la combinación que se nota en las ventas.</p>
           <ul class="mono">
             <li>Todo lo de Arranque</li>
-            <li>Sistema de gestión simple</li>
+            <li>Sistema de gestión a tu medida</li>
             <li>WhatsApp y agenda automatizados</li>
-            <li>Reels y fotos todos los meses</li>
+            <li>Reels y fotos de verdad, todos los meses</li>
           </ul>
         </article>
 
@@ -272,7 +276,7 @@
             <p class="mono paso__num">Paso 01</p>
             <h3>AUDITORÍA GRATIS</h3>
             <p class="mono">Miramos tu negocio y te mostramos, con números, dónde se van
-            los clientes y las horas. Si no hay caso claro, te lo decimos y listo.</p>
+            los clientes y dónde poner el foco de tus esfuerzos. Si no hay caso claro, te lo decimos y listo.</p>
             <p class="mono paso__precio">Gratis y sin compromiso</p>
           </article>
           <article class="paso">
@@ -284,7 +288,7 @@
           </article>
           <article class="paso">
             <p class="mono paso__num">Paso 03</p>
-            <h3>ABONO MENSUAL</h3>
+            <h3>SEGUIMIENTO Y ANÁLISIS</h3>
             <p class="mono">Contenido, mejoras y soporte todos los meses, con reportes
             claros de qué te está dejando.</p>
             <p class="mono paso__precio">Solo tiene sentido si te deja más de lo que cuesta</p>
@@ -353,6 +357,8 @@
         <form class="form" id="form-auditoria" novalidate>
           <input type="text" name="nombre" placeholder="TU NOMBRE" aria-label="Tu nombre" autocomplete="name" required>
           <input type="text" name="negocio" placeholder="TU NEGOCIO" aria-label="El nombre de tu negocio" autocomplete="organization" required>
+          <input type="tel" name="telefono" placeholder="TU WHATSAPP" aria-label="Tu número de WhatsApp" autocomplete="tel" inputmode="tel" required>
+          <input type="email" name="email" placeholder="TU MAIL" aria-label="Tu email" autocomplete="email" inputmode="email" required>
           <select name="rubro" aria-label="Rubro de tu negocio" required>
             <option value="" selected disabled>RUBRO</option>
             <option>Peluquería / estética</option>
@@ -363,24 +369,36 @@
             <option>Estudio / profesional</option>
             <option>Otro</option>
           </select>
+          <select name="dia" id="turno-dia" aria-label="Día para la reunión" required>
+            <option value="" selected disabled>DÍA PARA LA MEET</option>
+          </select>
+          <select name="hora" aria-label="Horario para la reunión" required>
+            <option value="" selected disabled>HORARIO</option>
+            <option>10:00</option>
+            <option>11:00</option>
+            <option>12:00</option>
+            <option>16:00</option>
+            <option>17:00</option>
+            <option>18:00</option>
+          </select>
           <button class="btn btn--lleno" type="submit" data-scramble-hover>
-            <span class="btn__label">QUIERO MI AUDITORÍA GRATIS</span>
+            <span class="btn__label">AGENDAR AUDITORÍA GRATIS</span>
             <svg class="chevron" width="18" height="18" viewBox="0 0 27 27" fill="none" aria-hidden="true"><path d="M3.85715 3.85715H19.2857L23.0553 7.64066L17.5163 13.1595L22.8462 17.5055V23.1429H17.5055V13.1703L7.65696 22.9832L3.8874 19.2L13.9259 9.19781H3.85715V3.85715Z" fill="currentColor"/></svg>
           </button>
-          <p class="form__error mono" role="alert" hidden>Completá tu nombre y el de tu negocio.</p>
+          <p class="form__error mono" role="alert" hidden>Completá todos los datos y elegí día y horario.</p>
         </form>
-        <p class="contacto__nota mono">La primera charla es gratis y por WhatsApp: completás el formulario,
-        tocás el botón y se abre el chat con el mensaje ya armado. Te decimos qué
-        se puede automatizar, cuántas horas te sacamos de encima y qué paquete te conviene — con precio
-        cerrado, sin cotizaciones eternas. Atendemos comercios y PyMEs de Escobar,
-        Maschwitz, Pilar, Tigre y alrededores.</p>
+        <p class="contacto__nota mono">Elegís día y horario —atendemos reuniones los lunes y viernes—,
+        tocás el botón y se abre el WhatsApp con todo ya armado. Te confirmamos la meet por WhatsApp
+        y mail, y en la charla te decimos qué se puede automatizar, cuántas horas te sacamos de encima
+        y qué paquete te conviene — con precio cerrado, sin cotizaciones eternas. Atendemos comercios
+        y PyMEs de Escobar, Maschwitz, Pilar, Tigre y alrededores.</p>
       </div>
 
       <div class="colofon" data-reveal="up">
         <div>
           <p class="colofon__titulo mono">Servicios</p>
           <ul class="mono">
-            <li><a href="#servicios">Páginas web</a></li>
+            <li><a href="#servicios">Web + e-commerce</a></li>
             <li><a href="#servicios">Sistema de gestión</a></li>
             <li><a href="#servicios">Contenido para tus redes</a></li>
             <li><a href="#servicios">Pauta digital</a></li>
@@ -428,6 +446,8 @@
 
   </main>
 
-  <script src="main.js?v=8"></script>
+  <a class="flotante mono" id="btn-flotante" href="#contacto">AGENDAR AUDITORÍA GRATIS →</a>
+
+  <script src="main.js?v=9"></script>
 </body>
 </html>

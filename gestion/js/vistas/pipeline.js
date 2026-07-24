@@ -105,7 +105,8 @@ function pintarConsultas(caja) {
           <div class="fila" data-id="${esc(c.id)}">
             <div class="fila__principal">
               <p class="fila__nombre" style="font-size:14px">${esc(c.negocio)}</p>
-              <p class="fila__detalle">${esc([c.nombre, c.rubro, fmtFecha(c.fecha)].filter(Boolean).join(' · '))}</p>
+              <p class="fila__detalle">${esc([c.nombre, c.rubro, c.telefono, c.email, fmtFecha(c.fecha)].filter(Boolean).join(' · '))}</p>
+              ${c.turno ? `<p class="fila__detalle" style="color:var(--naranja-claro)">Pidió meet: ${esc(c.turno)}</p>` : ''}
             </div>
             <div class="fila__lado" style="flex-direction:row; align-items:center; gap:8px">
               <button type="button" class="boton boton--lleno boton--chico" data-crear>Crear lead</button>
@@ -123,7 +124,9 @@ function pintarConsultas(caja) {
         lote.set(doc(collection(db, 'leads')), {
           negocio: consulta.negocio || '',
           contacto: consulta.nombre || '',
-          telefono: '', email: '', instagram: '',
+          telefono: consulta.telefono || '',
+          email: consulta.email || '',
+          instagram: '',
           rubro: consulta.rubro || '',
           zona: '',
           origen: 'web',
@@ -131,7 +134,11 @@ function pintarConsultas(caja) {
           valorEstimadoUsd: null,
           etapa: 'contacto',
           etapaCambiadaEl: serverTimestamp(),
-          notas: [{ texto: 'Entró por el formulario de la web.', fecha: new Date(), por: auth.currentUser.uid }],
+          notas: [{
+            texto: 'Entró por el formulario de la web.' + (consulta.turno ? ` Pidió meet: ${consulta.turno}.` : ''),
+            fecha: new Date(),
+            por: auth.currentUser.uid,
+          }],
           motivoPerdido: '',
           clienteId: null,
           ...stamp(true),

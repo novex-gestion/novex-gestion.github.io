@@ -15,7 +15,7 @@ service cloud.firestore {
     // solo con esta forma exacta); leer/gestionar queda para los socios.
     match /consultas/{id} {
       allow create: if request.resource.data.keys().hasOnly(
-          ['nombre', 'negocio', 'rubro', 'origen', 'estado', 'fecha'])
+          ['nombre', 'negocio', 'rubro', 'telefono', 'email', 'turno', 'origen', 'estado', 'fecha'])
         && request.resource.data.estado == 'nueva'
         && request.resource.data.origen == 'web'
         && request.resource.data.nombre is string
@@ -26,6 +26,12 @@ service cloud.firestore {
         && request.resource.data.negocio.size() <= 120
         && request.resource.data.rubro is string
         && request.resource.data.rubro.size() <= 60
+        && request.resource.data.telefono is string
+        && request.resource.data.telefono.size() <= 40
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 120
+        && request.resource.data.turno is string
+        && request.resource.data.turno.size() <= 80
         && request.resource.data.fecha is timestamp;
     }
     match /{document=**} {

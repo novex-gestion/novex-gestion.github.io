@@ -90,20 +90,52 @@ if (items.length) {
   });
 }
 
-// --- Cursor personalizado en Servicios ---
-const cursor = document.getElementById('cursor-scroll');
+// --- Servicios: flechas del slide (mobile) ---
 const pista = document.getElementById('pista-servicios');
-const puntero = window.matchMedia('(pointer: fine)').matches;
-
-if (cursor && pista && puntero && !reduceMotion) {
-  pista.addEventListener('mousemove', (e) => {
-    cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+document.querySelectorAll('.servicios__flecha').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    if (!pista) return;
+    const tarjeta = pista.querySelector('.servicio');
+    const paso = tarjeta ? tarjeta.getBoundingClientRect().width + 14 : 300;
+    pista.scrollBy({ left: paso * Number(btn.dataset.slide), behavior: 'smooth' });
   });
-  pista.addEventListener('mouseenter', () => { cursor.style.opacity = '1'; });
-  pista.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
+});
+
+// --- Botón flotante: se esconde al llegar al formulario ---
+const flotante = document.getElementById('btn-flotante');
+const seccionContacto = document.getElementById('contacto');
+if (flotante && seccionContacto) {
+  new IntersectionObserver(
+    (entradas) => {
+      for (const e of entradas) flotante.classList.toggle('oculto', e.isIntersecting);
+    },
+    { threshold: 0.12 }
+  ).observe(seccionContacto);
 }
 
-// --- Formulario → WhatsApp con mensaje precargado ---
+// --- Turnos: próximos lunes y viernes para la meet ---
+const selectorDia = document.getElementById('turno-dia');
+if (selectorDia) {
+  const opciones = [];
+  const d = new Date();
+  d.setDate(d.getDate() + 1); // desde mañana
+  while (opciones.length < 6) {
+    if (d.getDay() === 1 || d.getDay() === 5) {
+      const nombreDia = d
+        .toLocaleDateString('es-AR', { weekday: 'long' })
+        .replace(/^\w/, (c) => c.toUpperCase());
+      opciones.push(`${nombreDia} ${d.getDate()}/${d.getMonth() + 1}`);
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  for (const texto of opciones) {
+    const op = document.createElement('option');
+    op.textContent = texto;
+    selectorDia.appendChild(op);
+  }
+}
+
+// --- Formulario → WhatsApp con turno elegido ---
 const form = document.getElementById('form-auditoria');
 
 if (form) {
@@ -112,19 +144,25 @@ if (form) {
 
     const nombre = form.nombre.value.trim();
     const negocio = form.negocio.value.trim();
+    const telefono = form.telefono.value.trim();
+    const email = form.email.value.trim();
     const rubro = form.rubro.value;
+    const dia = form.dia.value;
+    const hora = form.hora.value;
     const error = form.querySelector('.form__error');
 
-    if (!nombre || !negocio) {
+    if (!nombre || !negocio || !telefono || !email || !dia || !hora) {
       error.hidden = false;
       return;
     }
     error.hidden = true;
 
+    const turno = `${dia} a las ${hora}`;
     const mensaje =
       `Hola! Soy ${nombre}, de ${negocio}` +
       (rubro ? ` (${rubro.toLowerCase()})` : '') +
-      `. Vi la página y quiero pedir la auditoría gratis.`;
+      `. Quiero agendar la auditoría gratis el ${turno}. ` +
+      `Mi WhatsApp: ${telefono} · Mi mail: ${email}.`;
 
     // Registrar la consulta en la gestión (best-effort, no bloquea el WhatsApp)
     fetch('https://firestore.googleapis.com/v1/projects/novex-gestion/databases/(default)/documents/consultas', {
@@ -135,6 +173,9 @@ if (form) {
           nombre: { stringValue: nombre.slice(0, 120) },
           negocio: { stringValue: negocio.slice(0, 120) },
           rubro: { stringValue: (rubro || '').slice(0, 60) },
+          telefono: { stringValue: telefono.slice(0, 40) },
+          email: { stringValue: email.slice(0, 120) },
+          turno: { stringValue: turno.slice(0, 80) },
           origen: { stringValue: 'web' },
           estado: { stringValue: 'nueva' },
           fecha: { timestampValue: new Date().toISOString() },
