@@ -1,6 +1,6 @@
 # NOVEX Gestión
 
-CRM interno de NOVEX. Vive en `https://novex-gestion.github.io/gestion/` (link discreto
+CRM interno de NOVEX. Vive en `https://somosnovex.com/gestion/` (link discreto
 "gestión" en el pie de la landing). SPA vanilla sin build + Firebase (Auth + Firestore).
 
 ## Módulos
