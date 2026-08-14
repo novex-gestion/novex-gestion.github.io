@@ -23,10 +23,20 @@ export const FIREBASE_CONFIG = {
 export const EQUIPO = {
   '0H6nIW0JbzUI3igshz4HhLf66le2': { nombre: 'Iván' },
   NUTgVP6JJAbvJg2ay47GtDgpxrk1: { nombre: 'Juan' },
-  // Cuenta compartida del equipo (admin@novex.bot). Acceso completo:
-  // ve y edita los postulantes, pero no toca nada de la agencia.
-  prsS6TSmQQfNkU3Xv73mfwNAIMH3: { nombre: 'Equipo' },
+  // admin@novex.bot — la usa Mati. Acceso completo a los postulantes,
+  // nada de la agencia. Si algún día la usa otra persona, lo que haga va a
+  // figurar como "Mati": ahí conviene darle cuenta propia.
+  prsS6TSmQQfNkU3Xv73mfwNAIMH3: { nombre: 'Mati' },
 };
+
+// Quién tocó cada ficha por última vez. Juno firma con su UID de Firebase.
+const UID_JUNO = 'HBkuexr9OnV9j1WuXb4DLpxBcZU2';
+
+export function nombreAutor(uid) {
+  if (!uid) return '';
+  if (uid === UID_JUNO || uid === 'juno') return 'Juno';
+  return EQUIPO[uid] ? EQUIPO[uid].nombre : '';
+}
 
 // El embudo del reclutamiento. `enResumen` decide si sale como KPI arriba.
 export const ESTADOS_POSTULANTE = [

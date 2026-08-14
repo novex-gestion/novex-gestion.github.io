@@ -60,11 +60,12 @@ service cloud.firestore {
         && request.resource.data.fecha is timestamp;
     }
 
-    // Candidatos a activador. Los ve el equipo del canal; Juno crea y actualiza,
-    // pero NO borra: el historial de un contacto no se pierde por un bug del bot.
+    // Candidatos a activador. Los ve el equipo del canal; Juno lee (para
+    // levantar la cola del boton "Contactar"), crea y actualiza, pero NO borra:
+    // el historial de un contacto no se pierde por un bug del bot.
     match /postulantes/{id} {
       allow read, write: if esEquipoCanal();
-      allow create, update: if esJuno();
+      allow read, create, update: if esJuno();
     }
 
     // Todo lo demás (la agencia) sigue siendo solo de los socios.

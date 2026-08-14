@@ -5,7 +5,7 @@ import {
   doc, updateDoc, deleteDoc, serverTimestamp, arrayUnion,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db, auth, stamp } from '../firebase.js';
-import { ESTADOS_POSTULANTE, nombrePersona } from '../config.js';
+import { ESTADOS_POSTULANTE, nombrePersona, nombreAutor } from '../config.js';
 import { cache, alCambiar } from '../datos.js';
 import {
   esc, fmtFechaCorta, haceDias, aFecha, modal, confirmar, toast, selectHtml,
@@ -100,10 +100,13 @@ export function montarPostulantes(raiz) {
     lista.innerHTML = visibles.map((p) => {
       const estado = p.estado || 'nuevo';
       const apagado = ['descartado', 'no_responde'].includes(estado);
+      // Quién tocó la ficha por última vez: Juno, Juan o Mati.
+      const autor = nombreAutor(p.actualizadoPor);
       const detalle = [
         p.localidad,
         p.ultimaActividad ? haceDias(p.ultimaActividad) : null,
         p.puntaje ? `${p.puntaje} pts` : null,
+        autor ? `por ${autor}` : null,
       ].filter(Boolean).join(' · ');
       const wa = String(p.telefono || '').replace(/\D/g, '');
       const sigue = PROXIMO[estado];
