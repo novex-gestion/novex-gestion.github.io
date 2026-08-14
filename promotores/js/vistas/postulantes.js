@@ -1,0 +1,197 @@
+// 01 · POSTULANTES — la bandeja de Juno.
+// Acá caen los candidatos a activador del canal Clover: Juno los contacta por
+// WhatsApp, los clasifica y escala; el equipo decide y registra el desenlace.
+import {
+  doc, updateDoc, deleteDoc, serverTimestamp, arrayUnion,
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { db, auth, stamp } from '../firebase.js';
+import { ESTADOS_POSTULANTE, nombrePersona } from '../config.js';
+import { cache, alCambiar } from '../datos.js';
+import {
+  esc, fmtFechaCorta, haceDias, aFecha, modal, confirmar, toast, selectHtml,
+} from '../../../gestion/js/ui.js';
+
+// Los que piden atención humana primero.
+const CALIENTES = ['interesado', 'agendado'];
+
+export function montarPostulantes(raiz) {
+  raiz.innerHTML = `
+    <div class="vista__cab">
+      <div>
+        <h1 class="vista__titulo">Postu<em>lantes</em></h1>
+        <p class="vista__sub mono" id="pos-resumen"></p>
+      </div>
+    </div>
+    <div class="kpis" id="pos-kpis"></div>
+    <div class="filtros" id="pos-filtros"></div>
+    <div class="filas" id="pos-lista"></div>`;
+
+  let filtro = 'pendientes';
+
+  function pintar() {
+    const lista = raiz.querySelector('#pos-lista');
+    if (!lista) return;
+
+    const todos = cache.postulantes || [];
+    const cuenta = (e) => todos.filter((p) => (p.estado || 'nuevo') === e).length;
+    const calientes = todos.filter((p) => CALIENTES.includes(p.estado)).length;
+
+    raiz.querySelector('#pos-resumen').textContent =
+      `${todos.length} postulantes` + (calientes ? ` · ${calientes} esperando respuesta tuya` : '');
+
+    // El embudo de un vistazo.
+    raiz.querySelector('#pos-kpis').innerHTML = ESTADOS_POSTULANTE
+      .filter((e) => e.enResumen)
+      .map((e) => `
+        <div class="kpi">
+          <p class="kpi__nombre">${esc(e.nombre)}</p>
+          <p class="kpi__valor">${cuenta(e.id)}</p>
+        </div>`).join('');
+
+    const filtros = [
+      { id: 'pendientes', nombre: 'Para atender' },
+      { id: 'todos', nombre: 'Todos' },
+      ...ESTADOS_POSTULANTE.map((e) => ({ id: e.id, nombre: e.nombre })),
+    ];
+    raiz.querySelector('#pos-filtros').innerHTML = filtros.map((f) =>
+      `<button type="button" class="filtro ${f.id === filtro ? 'activo' : ''}" data-f="${esc(f.id)}">${esc(f.nombre)}</button>`
+    ).join('');
+    raiz.querySelectorAll('#pos-filtros .filtro').forEach((b) =>
+      b.addEventListener('click', () => { filtro = b.dataset.f; pintar(); })
+    );
+
+    const visibles = todos
+      .filter((p) => {
+        const e = p.estado || 'nuevo';
+        if (filtro === 'todos') return true;
+        if (filtro === 'pendientes') return CALIENTES.includes(e);
+        return e === filtro;
+      })
+      .sort((a, b) => {
+        // Primero los que esperan respuesta, después por actividad reciente.
+        const ca = CALIENTES.includes(a.estado) ? 0 : 1;
+        const cb = CALIENTES.includes(b.estado) ? 0 : 1;
+        if (ca !== cb) return ca - cb;
+        const fa = aFecha(a.ultimaActividad) || aFecha(a.creadoEl);
+        const fb = aFecha(b.ultimaActividad) || aFecha(b.creadoEl);
+        return (fb?.getTime() || 0) - (fa?.getTime() || 0);
+      });
+
+    lista.innerHTML = visibles.map((p) => {
+      const estado = p.estado || 'nuevo';
+      const apagado = ['descartado', 'no_responde'].includes(estado);
+      const detalle = [
+        p.localidad,
+        p.ultimaActividad ? haceDias(p.ultimaActividad) : null,
+        p.puntaje ? `${p.puntaje} pts` : null,
+      ].filter(Boolean).join(' · ');
+      return `
+        <article class="fila ${apagado ? 'fila--apagada' : ''}" data-id="${esc(p.id)}">
+          <div class="fila__principal">
+            <p class="fila__nombre">${esc(p.nombre || 'Sin nombre')}</p>
+            <p class="fila__detalle">${esc(detalle || '—')}</p>
+            ${p.junoResumen ? `<p class="fila__detalle">${esc(p.junoResumen)}</p>` : ''}
+          </div>
+          <div class="fila__lado">${sello(estado)}</div>
+        </article>`;
+    }).join('') ||
+      (cache.listo.postulantes
+        ? '<p class="vacio">// Nada por acá todavía.</p>'
+        : '<p class="vacio">cargando…</p>');
+
+    lista.querySelectorAll('.fila').forEach((el) => {
+      const p = (cache.postulantes || []).find((x) => x.id === el.dataset.id);
+      if (p) el.addEventListener('click', () => detallePostulante(p));
+    });
+  }
+
+  function sello(estado) {
+    if (estado === 'interesado') return '<span class="sello sello--naranja">Interesado</span>';
+    if (estado === 'agendado') return '<span class="sello sello--naranja">Agendado</span>';
+    if (estado === 'activo') return '<span class="sello">Activo</span>';
+    if (estado === 'descartado') return '<span class="sello sello--rojo">Descartado</span>';
+    if (estado === 'no_responde') return '<span class="sello">No responde</span>';
+    if (estado === 'contactado') return '<span class="sello">Contactado</span>';
+    return '';
+  }
+
+  // ============ DETALLE ============
+  function detallePostulante(p) {
+    const wa = String(p.telefono || '').replace(/\D/g, '');
+    const historial = Array.isArray(p.historial) ? [...p.historial].reverse() : [];
+
+    const m = modal(p.nombre || 'Postulante', `
+      <div class="modal__cuerpo">
+        <div class="datos">
+          <div><p class="dato__nombre">Teléfono</p><p class="dato__valor">${
+            wa ? `<a href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener">${esc(p.telefono)}</a>` : '—'
+          }</p></div>
+          <div><p class="dato__nombre">Localidad</p><p class="dato__valor">${esc(p.localidad || '—')}</p></div>
+          <div><p class="dato__nombre">Email</p><p class="dato__valor">${esc(p.email || '—')}</p></div>
+          <div><p class="dato__nombre">Origen</p><p class="dato__valor">${esc(p.origen || '—')}</p></div>
+          <div><p class="dato__nombre">Primer contacto</p><p class="dato__valor">${
+            p.contactadoEl ? fmtFechaCorta(p.contactadoEl) : '—'}</p></div>
+          <div><p class="dato__nombre">Última actividad</p><p class="dato__valor">${
+            p.ultimaActividad ? fmtFechaCorta(p.ultimaActividad) : '—'}</p></div>
+        </div>
+
+        ${p.perfil ? `<p class="ficha">${esc(p.perfil)}</p>` : ''}
+        ${p.junoResumen ? `<p class="ficha"><b>Juno:</b> ${esc(p.junoResumen)}</p>` : ''}
+        ${p.motivo ? `<p class="ficha"><b>Motivo:</b> ${esc(p.motivo)}</p>` : ''}
+
+        <div class="campo">
+          <label class="campo__nombre" for="pos-estado">Estado</label>
+          <select id="pos-estado">${selectHtml(ESTADOS_POSTULANTE, p.estado || 'nuevo')}</select>
+        </div>
+
+        <div class="campo">
+          <label class="campo__nombre" for="pos-nota">Agregar una nota</label>
+          <textarea id="pos-nota" rows="2" placeholder="Qué pasó en la llamada…"></textarea>
+        </div>
+
+        <div class="modal__acciones">
+          <button type="button" class="boton boton--peligro boton--chico" data-borrar>Borrar</button>
+          <button type="button" class="boton" data-cerrar>Cancelar</button>
+          <button type="button" class="boton boton--lleno" data-guardar>Guardar</button>
+        </div>
+
+        ${historial.length ? `
+          <h3 class="campo__nombre" style="margin-top:1.2rem">Historial</h3>
+          ${historial.map((h) => `
+            <div class="interaccion">
+              <p class="interaccion__meta">${esc(fmtFechaCorta(h.fecha))} · ${esc(h.quien || 'Juno')}</p>
+              <p class="interaccion__texto">${esc(h.texto)}</p>
+            </div>`).join('')}` : ''}
+      </div>`);
+
+    m.el.querySelector('[data-guardar]').addEventListener('click', async () => {
+      const estado = m.el.querySelector('#pos-estado').value;
+      const nota = m.el.querySelector('#pos-nota').value.trim();
+      try {
+        const cambios = { estado, ultimaActividad: serverTimestamp(), ...stamp() };
+        if (nota) {
+          cambios.historial = arrayUnion({
+            fecha: new Date().toISOString(),
+            texto: nota,
+            quien: nombrePersona(auth.currentUser.uid),
+          });
+        }
+        await updateDoc(doc(db, 'postulantes', p.id), cambios);
+        m.cerrar();
+        toast('Guardado');
+      } catch (err) { console.error(err); toast('No se pudo guardar', true); }
+    });
+
+    m.el.querySelector('[data-borrar]').addEventListener('click', async () => {
+      if (!(await confirmar(`¿Borrar a ${p.nombre}? No se puede deshacer.`, 'Borrar'))) return;
+      try {
+        await deleteDoc(doc(db, 'postulantes', p.id));
+        m.cerrar();
+        toast('Borrado');
+      } catch (err) { console.error(err); toast('No se pudo borrar', true); }
+    });
+  }
+
+  pintar();
+  return alCambiar((col) => { if (col === 'postulantes') pintar(); });
+}

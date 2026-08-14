@@ -1,0 +1,75 @@
+// NOVEX — Security Rules de Firestore (proyecto novex-gestion).
+// Copia documental: la versión vigente se pega en la consola de
+// Firebase (Firestore → Reglas → Publicar).
+//
+// Un solo proyecto, dos apps:
+//   /gestion/     -> la agencia (clientes, cobros, gastos). Solo socios.
+//   /promotores/  -> el canal Clover (postulantes, equipo). Socios + equipo del canal.
+// Quien entra a promotores NO puede leer nada de la agencia.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esSocio() {
+      return request.auth != null
+        && request.auth.uid in [
+          '0H6nIW0JbzUI3igshz4HhLf66le2',   // Iván
+          'NUTgVP6JJAbvJg2ay47GtDgpxrk1'    // Juan
+        ];
+    }
+
+    // Equipo del canal de promotores: entra a /promotores/ y a nada más.
+    // Para sumar a alguien (Mati, coordinadores) va el UID acá Y en EQUIPO de
+    // promotores/js/config.js.
+    function esEquipoCanal() {
+      return request.auth != null
+        && request.auth.uid in [
+          '0H6nIW0JbzUI3igshz4HhLf66le2',   // Iván
+          'NUTgVP6JJAbvJg2ay47GtDgpxrk1'    // Juan
+          // 'UID_DE_MATI'
+        ];
+    }
+
+    // El bot Juno: escribe postulantes desde n8n. No lee nada mas y no borra.
+    function esJuno() {
+      return request.auth != null
+        && request.auth.uid == '__UID_JUNO__';
+    }
+
+    // El formulario público de la landing crea consultas (solo crear,
+    // solo con esta forma exacta); leer/gestionar queda para los socios.
+    match /consultas/{id} {
+      allow create: if request.resource.data.keys().hasOnly(
+          ['nombre', 'negocio', 'rubro', 'telefono', 'email', 'turno', 'origen', 'estado', 'fecha'])
+        && request.resource.data.estado == 'nueva'
+        && request.resource.data.origen == 'web'
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() > 0
+        && request.resource.data.nombre.size() <= 120
+        && request.resource.data.negocio is string
+        && request.resource.data.negocio.size() > 0
+        && request.resource.data.negocio.size() <= 120
+        && request.resource.data.rubro is string
+        && request.resource.data.rubro.size() <= 60
+        && request.resource.data.telefono is string
+        && request.resource.data.telefono.size() <= 40
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 120
+        && request.resource.data.turno is string
+        && request.resource.data.turno.size() <= 80
+        && request.resource.data.fecha is timestamp;
+    }
+
+    // Candidatos a activador. Los ve el equipo del canal; Juno crea y actualiza,
+    // pero NO borra: el historial de un contacto no se pierde por un bug del bot.
+    match /postulantes/{id} {
+      allow read, write: if esEquipoCanal();
+      allow create, update: if esJuno();
+    }
+
+    // Todo lo demás (la agencia) sigue siendo solo de los socios.
+    match /{document=**} {
+      allow read, write: if esSocio();
+    }
+  }
+}
