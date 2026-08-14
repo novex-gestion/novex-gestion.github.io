@@ -23,7 +23,9 @@ export const FIREBASE_CONFIG = {
 export const EQUIPO = {
   '0H6nIW0JbzUI3igshz4HhLf66le2': { nombre: 'Iván' },
   NUTgVP6JJAbvJg2ay47GtDgpxrk1: { nombre: 'Juan' },
-  // 'UID_DE_MATI': { nombre: 'Mati' },
+  // Cuenta compartida del equipo (admin@novex.bot). Acceso completo:
+  // ve y edita los postulantes, pero no toca nada de la agencia.
+  prsS6TSmQQfNkU3Xv73mfwNAIMH3: { nombre: 'Equipo' },
 };
 
 // El embudo del reclutamiento. `enResumen` decide si sale como KPI arriba.

@@ -25,8 +25,8 @@ service cloud.firestore {
       return request.auth != null
         && request.auth.uid in [
           '0H6nIW0JbzUI3igshz4HhLf66le2',   // Iván
-          'NUTgVP6JJAbvJg2ay47GtDgpxrk1'    // Juan
-          // 'UID_DE_MATI'
+          'NUTgVP6JJAbvJg2ay47GtDgpxrk1',   // Juan
+          'prsS6TSmQQfNkU3Xv73mfwNAIMH3'    // admin@novex.bot (cuenta compartida)
         ];
     }
 
