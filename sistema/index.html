@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0b0c">
+  <title>NOVEX · Sistema de gestión adaptable</title>
+  <meta name="description" content="Un solo sistema de gestión que se adapta a cada negocio: ERP y CRM configurables por perfil. Demostración de NOVEX.">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css?v=1">
+</head>
+<body>
+<div class="fondo-grilla" aria-hidden="true"></div>
+
+<!-- ============ BARRA SUPERIOR ============ -->
+<header class="barra">
+  <a class="barra__marca" href="../" title="Ir a novex">NOVE<em>X</em><span class="mono">/ sistema</span></a>
+  <div class="barra__sep"></div>
+  <div class="selector mono" id="selector-negocio"></div>
+  <div class="barra__sep"></div>
+  <div class="conmutador" id="conmutador-app"></div>
+  <span class="barra__espacio"></span>
+  <button class="boton-linea mono" id="btn-cargar">↥ Cargar un negocio</button>
+  <button class="boton-linea mono" id="btn-perfil">perfil.json</button>
+</header>
+
+<!-- ============ APLICACIÓN ============ -->
+<div class="marco">
+  <aside class="lateral">
+    <div class="lateral__negocio">
+      <b id="negocio-nombre"></b>
+      <span class="mono" id="negocio-rubro"></span>
+    </div>
+    <nav id="menu"></nav>
+    <div class="lateral__pie mono">
+      <span id="negocio-corte"></span>
+      <span id="negocio-fuente"></span>
+    </div>
+  </aside>
+
+  <main>
+    <div class="encabezado">
+      <h1 id="titulo-vista"></h1>
+      <span class="mono" id="miga"></span>
+      <span class="barra__espacio"></span>
+      <span class="mono tenue" id="sello"></span>
+    </div>
+    <div id="vista"></div>
+  </main>
+</div>
+
+<!-- zona de arrastre para cargar un paquete -->
+<div class="soltar" id="soltar" hidden><div><b>Soltá el archivo del negocio</b><span class="mono">un .json generado por NOVEX</span></div></div>
+
+<div id="capa"></div>
+<input type="file" id="archivo" accept=".json,application/json" hidden>
+
+<script src="js/sistema.js?v=1"></script>
+</body>
+</html>

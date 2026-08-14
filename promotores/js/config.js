@@ -44,6 +44,9 @@ export const ESTADOS_POSTULANTE = [
   { id: 'contactado',  nombre: 'Contactado',   enResumen: true },
   { id: 'interesado',  nombre: 'Interesado',   enResumen: true },
   { id: 'agendado',    nombre: 'Agendado',     enResumen: true },
+  // Quedó en la llamada y recibe el material, pero todavía no salió a la calle:
+  // "activo" es el que ya está vendiendo. Entrar acá dispara el envío de los PDF.
+  { id: 'manuales',    nombre: 'Manuales',     enResumen: true },
   { id: 'activo',      nombre: 'Activo',       enResumen: true },
   { id: 'no_responde', nombre: 'No responde',  enResumen: false },
   { id: 'descartado',  nombre: 'Descartado',   enResumen: false },

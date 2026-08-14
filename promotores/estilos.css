@@ -44,6 +44,7 @@
 /* El color dice en qué punto del embudo está, de un vistazo. */
 .estado-rapido[data-e='interesado'],
 .estado-rapido[data-e='agendado'] { border-color: var(--naranja-oscuro); color: var(--naranja-claro); }
+.estado-rapido[data-e='manuales'] { border-color: rgba(111, 174, 92, 0.3); color: var(--verde); }
 .estado-rapido[data-e='activo']  { border-color: rgba(111, 174, 92, 0.5); color: var(--verde); }
 .estado-rapido[data-e='descartado'] { border-color: rgba(198, 91, 78, 0.45); color: var(--rojo); }
 .estado-rapido[data-e='no_responde'] { color: var(--minimo); }
@@ -77,6 +78,18 @@
   margin-top: 7px;
   letter-spacing: 0.03em;
 }
+
+/* El material sale solo cuando la ficha entra en MANUALES: hay que poder
+   ver que salió sin tener que abrir el WhatsApp. */
+.pos__material {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--verde);
+  margin-top: 7px;
+  letter-spacing: 0.04em;
+}
+
+.pos__material--espera { color: var(--tenue-2); }
 
 /* Lo que dice el CV: el dato que decide si vale la pena la llamada. */
 .pos__perfil {

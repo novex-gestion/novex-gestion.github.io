@@ -19,7 +19,8 @@ const PROXIMO = {
   nuevo: 'contactado',
   contactado: 'interesado',
   interesado: 'agendado',
-  agendado: 'activo',
+  agendado: 'manuales',
+  manuales: 'activo',
   no_responde: 'contactado',
   descartado: 'contactado',
   // 'activo' no tiene siguiente: ya está en la calle.
@@ -123,6 +124,8 @@ export function montarPostulantes(raiz) {
 
           <p class="fila__detalle">${esc(detalle || '—')}</p>
           ${p.llamadaCuando ? `<p class="pos__llamada">📞 Llamada: ${esc(p.llamadaCuando)}</p>` : ''}
+          ${p.materialEnviado ? `<p class="pos__material">✓ Material enviado · ${esc(fmtFechaCorta(p.materialEnviado))}</p>`
+            : (estado === 'manuales' ? '<p class="pos__material pos__material--espera">⏳ Juno le manda el material en unos minutos</p>' : '')}
           ${p.perfil ? `<p class="pos__perfil">${esc(p.perfil)}</p>` : ''}
           ${p.junoResumen ? `<p class="pos__juno">${esc(p.junoResumen)}</p>` : ''}
           ${ultimaNota(p)}
