@@ -69,6 +69,15 @@
   margin-bottom: 4px;
 }
 
+/* El compromiso asumido con el candidato: lo mas importante de la fila. */
+.pos__llamada {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--naranja-claro);
+  margin-top: 7px;
+  letter-spacing: 0.03em;
+}
+
 /* Lo que dice el CV: el dato que decide si vale la pena la llamada. */
 .pos__perfil {
   font-size: 13px;

@@ -122,6 +122,7 @@ export function montarPostulantes(raiz) {
           </div>
 
           <p class="fila__detalle">${esc(detalle || '—')}</p>
+          ${p.llamadaCuando ? `<p class="pos__llamada">📞 Llamada: ${esc(p.llamadaCuando)}</p>` : ''}
           ${p.perfil ? `<p class="pos__perfil">${esc(p.perfil)}</p>` : ''}
           ${p.junoResumen ? `<p class="pos__juno">${esc(p.junoResumen)}</p>` : ''}
           <p class="pos__contacto">${esc(telLindo(p.telefono))}${p.email ? ' · ' + esc(p.email) : ''}</p>
