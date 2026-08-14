@@ -124,6 +124,7 @@ export function montarPostulantes(raiz) {
           <p class="pos__contacto">${esc(telLindo(p.telefono))}${p.email ? ' · ' + esc(p.email) : ''}</p>
 
           <div class="pos__acciones">
+            ${botonJuno(p)}
             ${wa ? `<a class="boton boton--chico" href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener" data-no-abrir>WhatsApp</a>` : ''}
             ${sigue ? `<button type="button" class="boton boton--chico boton--lleno" data-avanzar>→ ${esc(nombreEstado(sigue))}</button>` : ''}
             ${estado !== 'descartado' ? '<button type="button" class="boton boton--chico" data-descartar>Descartar</button>' : ''}
@@ -142,6 +143,7 @@ export function montarPostulantes(raiz) {
       sel.addEventListener('change', (ev) => cambiarEstado(p, ev.target));
 
       el.querySelector('[data-ficha]').addEventListener('click', () => detallePostulante(p));
+      el.querySelector('[data-juno]')?.addEventListener('click', (ev) => pedirContacto(p, ev.target));
       el.querySelector('[data-avanzar]')?.addEventListener('click', () =>
         moverA(p, PROXIMO[p.estado || 'nuevo'], sel));
       el.querySelector('[data-descartar]')?.addEventListener('click', () =>
@@ -173,6 +175,38 @@ export function montarPostulantes(raiz) {
       toast('No se pudo cambiar el estado', true);
     } finally {
       if (select) delete select.dataset.guardando;
+    }
+  }
+
+  // ---- Pedirle a Juno que lo contacte ----
+  // El pedido entra a una COLA: Juno lo levanta en su próximo turno, respetando
+  // el cupo diario y el horario. No dispara el mensaje al instante a propósito,
+  // para que nadie pueda mandar 40 de golpe y quemar el número.
+  function botonJuno(p) {
+    if (p.contactadoEl) return '';                    // Juno ya le escribió
+    if (p.contactoPedido) {
+      const quien = p.contactoPedidoPor ? ` (pidió ${p.contactoPedidoPor})` : '';
+      return `<span class="pos__encola">⏳ En cola${esc(quien)}</span>`;
+    }
+    return '<button type="button" class="boton boton--chico" data-juno>Contactar</button>';
+  }
+
+  async function pedirContacto(p, boton) {
+    boton.disabled = true;
+    boton.textContent = 'Encolando…';
+    try {
+      await updateDoc(doc(db, 'postulantes', p.id), {
+        contactoPedido: serverTimestamp(),
+        contactoPedidoPor: nombrePersona(auth.currentUser.uid),
+        ultimaActividad: serverTimestamp(),
+        ...stamp(),
+      });
+      toast(`${(p.nombre || '').split(' ')[0]} va a la cola de Juno`);
+    } catch (err) {
+      console.error(err);
+      boton.disabled = false;
+      boton.textContent = 'Contactar';
+      toast('No se pudo encolar', true);
     }
   }
 
