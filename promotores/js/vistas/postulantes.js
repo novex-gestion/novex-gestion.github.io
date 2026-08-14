@@ -125,6 +125,7 @@ export function montarPostulantes(raiz) {
           ${p.llamadaCuando ? `<p class="pos__llamada">📞 Llamada: ${esc(p.llamadaCuando)}</p>` : ''}
           ${p.perfil ? `<p class="pos__perfil">${esc(p.perfil)}</p>` : ''}
           ${p.junoResumen ? `<p class="pos__juno">${esc(p.junoResumen)}</p>` : ''}
+          ${ultimaNota(p)}
           <p class="pos__contacto">${esc(telLindo(p.telefono))}${p.email ? ' · ' + esc(p.email) : ''}</p>
 
           <div class="pos__acciones">
@@ -180,6 +181,18 @@ export function montarPostulantes(raiz) {
     } finally {
       if (select) delete select.dataset.guardando;
     }
+  }
+
+  // La última nota que escribió alguien del equipo, ahí en la fila: si hay que
+  // abrir la ficha para leerla, en la práctica no se lee.
+  function ultimaNota(p) {
+    const notas = Array.isArray(p.historial) ? p.historial : [];
+    if (!notas.length) return '';
+    const n = notas[notas.length - 1];
+    const previas = notas.length > 1 ? ` · +${notas.length - 1} nota${notas.length > 2 ? 's' : ''} más` : '';
+    const firma = [n.quien, n.fecha ? fmtFechaCorta(n.fecha) : ''].filter(Boolean).join(', ');
+    return `<p class="pos__nota">${esc(n.texto)}
+      <span class="pos__nota-meta">— ${esc(firma)}${esc(previas)}</span></p>`;
   }
 
   // ---- Pedirle a Juno que lo contacte ----

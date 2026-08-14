@@ -96,6 +96,25 @@
   color: var(--tenue);
 }
 
+/* La última nota del equipo. Barra clara para distinguirla de la naranja,
+   que es lo que entendió Juno: una la escribió una persona, la otra el bot. */
+.pos__nota {
+  font-size: 13px;
+  line-height: 1.45;
+  margin-top: 6px;
+  padding-left: 9px;
+  border-left: 2px solid var(--tenue-3);
+  color: var(--crema);
+}
+
+.pos__nota-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--tenue-3);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
 .pos__contacto {
   font-family: var(--mono);
   font-size: 11px;
