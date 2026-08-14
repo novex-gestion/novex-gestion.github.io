@@ -53,9 +53,57 @@
 
 .estado-rapido option { background: var(--tarjeta); color: var(--crema); }
 
-/* La ficha se abre tocando el nombre, no toda la fila:
-   así el select no compite con el click de apertura. */
-.fila__principal { cursor: pointer; }
+/* ---- Fila de postulante ----
+   Trae todo lo que hace falta para decidir sin abrir la ficha:
+   quién es, qué hizo, cómo contactarlo y a dónde mandarlo. */
+.fila--pos {
+  display: block;
+  padding: 14px;
+}
+
+.pos__cab {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+/* Lo que dice el CV: el dato que decide si vale la pena la llamada. */
+.pos__perfil {
+  font-size: 13px;
+  color: var(--crema);
+  line-height: 1.45;
+  margin-top: 6px;
+}
+
+/* Lo que entendió Juno de la conversación. */
+.pos__juno {
+  font-size: 13px;
+  line-height: 1.45;
+  margin-top: 6px;
+  padding-left: 9px;
+  border-left: 2px solid var(--naranja-oscuro);
+  color: var(--tenue);
+}
+
+.pos__contacto {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--tenue-2);
+  margin-top: 7px;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+
+.pos__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.pos__acciones .boton { text-decoration: none; }
 
 /* Los contadores del embudo son 5 y la grilla de la gestión es de 4:
    quedaba uno colgado solo en la segunda fila. */

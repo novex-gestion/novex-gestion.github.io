@@ -14,6 +14,26 @@ import {
 // Los que piden atención humana primero.
 const CALIENTES = ['interesado', 'agendado'];
 
+// El paso siguiente del embudo, para avanzar con un solo botón.
+const PROXIMO = {
+  nuevo: 'contactado',
+  contactado: 'interesado',
+  interesado: 'agendado',
+  agendado: 'activo',
+  no_responde: 'contactado',
+  descartado: 'contactado',
+  // 'activo' no tiene siguiente: ya está en la calle.
+};
+
+// 5491164127127 -> 11 6412-7127
+function telLindo(t) {
+  const d = String(t || '').replace(/\D/g, '').replace(/^549?/, '');
+  if (d.length !== 10) return t || '—';
+  const area = d.length === 10 && d.startsWith('11') ? 2 : 3;
+  const resto = d.slice(area);
+  return `${d.slice(0, area)} ${resto.slice(0, resto.length - 4)}-${resto.slice(-4)}`;
+}
+
 export function montarPostulantes(raiz) {
   raiz.innerHTML = `
     <div class="vista__cab">
@@ -85,19 +105,29 @@ export function montarPostulantes(raiz) {
         p.ultimaActividad ? haceDias(p.ultimaActividad) : null,
         p.puntaje ? `${p.puntaje} pts` : null,
       ].filter(Boolean).join(' · ');
+      const wa = String(p.telefono || '').replace(/\D/g, '');
+      const sigue = PROXIMO[estado];
       return `
-        <article class="fila ${apagado ? 'fila--apagada' : ''}" data-id="${esc(p.id)}">
-          <div class="fila__principal">
+        <article class="fila fila--pos ${apagado ? 'fila--apagada' : ''}" data-id="${esc(p.id)}">
+          <div class="pos__cab">
             <p class="fila__nombre">${esc(p.nombre || 'Sin nombre')}</p>
-            <p class="fila__detalle">${esc(detalle || '—')}</p>
-            ${p.junoResumen ? `<p class="fila__detalle">${esc(p.junoResumen)}</p>` : ''}
-          </div>
-          <div class="fila__lado">
             <span class="estado-envoltura">
               <select class="estado-rapido" data-e="${esc(estado)}" aria-label="Estado de ${esc(p.nombre || '')}">
                 ${selectHtml(ESTADOS_POSTULANTE, estado)}
               </select>
             </span>
+          </div>
+
+          <p class="fila__detalle">${esc(detalle || '—')}</p>
+          ${p.perfil ? `<p class="pos__perfil">${esc(p.perfil)}</p>` : ''}
+          ${p.junoResumen ? `<p class="pos__juno">${esc(p.junoResumen)}</p>` : ''}
+          <p class="pos__contacto">${esc(telLindo(p.telefono))}${p.email ? ' · ' + esc(p.email) : ''}</p>
+
+          <div class="pos__acciones">
+            ${wa ? `<a class="boton boton--chico" href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener" data-no-abrir>WhatsApp</a>` : ''}
+            ${sigue ? `<button type="button" class="boton boton--chico boton--lleno" data-avanzar>→ ${esc(nombreEstado(sigue))}</button>` : ''}
+            ${estado !== 'descartado' ? '<button type="button" class="boton boton--chico" data-descartar>Descartar</button>' : ''}
+            <button type="button" class="boton boton--chico" data-ficha>Ficha</button>
           </div>
         </article>`;
     }).join('') ||
@@ -108,36 +138,41 @@ export function montarPostulantes(raiz) {
     lista.querySelectorAll('.fila').forEach((el) => {
       const p = (cache.postulantes || []).find((x) => x.id === el.dataset.id);
       if (!p) return;
-      // La ficha se abre desde el nombre; el select vive aparte y no la dispara.
-      el.querySelector('.fila__principal').addEventListener('click', () => detallePostulante(p));
-      el.querySelector('.estado-rapido').addEventListener('change', (ev) => {
-        ev.stopPropagation();
-        cambiarEstado(p, ev.target);
-      });
+      const sel = el.querySelector('.estado-rapido');
+      sel.addEventListener('change', (ev) => cambiarEstado(p, ev.target));
+
+      el.querySelector('[data-ficha]').addEventListener('click', () => detallePostulante(p));
+      el.querySelector('[data-avanzar]')?.addEventListener('click', () =>
+        moverA(p, PROXIMO[p.estado || 'nuevo'], sel));
+      el.querySelector('[data-descartar]')?.addEventListener('click', () =>
+        moverA(p, 'descartado', sel));
     });
   }
 
   // Cambio de estado en la lista misma: es lo que la vuelve un pipeline
   // sin necesidad de arrastrar tarjetas.
-  async function cambiarEstado(p, select) {
-    const nuevo = select.value;
+  function cambiarEstado(p, select) {
+    return moverA(p, select.value, select);
+  }
+
+  async function moverA(p, nuevo, select) {
     const previo = p.estado || 'nuevo';
-    if (nuevo === previo) return;
-    select.dataset.guardando = '1';
+    if (!nuevo || nuevo === previo) return;
+    if (select) select.dataset.guardando = '1';
     try {
       await updateDoc(doc(db, 'postulantes', p.id), {
         estado: nuevo,
         ultimaActividad: serverTimestamp(),
         ...stamp(),
       });
-      select.dataset.e = nuevo;
-      toast(`${p.nombre || 'Postulante'} → ${nombreEstado(nuevo)}`);
+      if (select) { select.value = nuevo; select.dataset.e = nuevo; }
+      toast(`${(p.nombre || 'Postulante').split(' ')[0]} → ${nombreEstado(nuevo)}`);
     } catch (err) {
       console.error(err);
-      select.value = previo;          // que la pantalla no mienta
+      if (select) select.value = previo;   // que la pantalla no mienta
       toast('No se pudo cambiar el estado', true);
     } finally {
-      delete select.dataset.guardando;
+      if (select) delete select.dataset.guardando;
     }
   }
 
