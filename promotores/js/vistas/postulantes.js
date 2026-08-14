@@ -92,7 +92,13 @@ export function montarPostulantes(raiz) {
             <p class="fila__detalle">${esc(detalle || '—')}</p>
             ${p.junoResumen ? `<p class="fila__detalle">${esc(p.junoResumen)}</p>` : ''}
           </div>
-          <div class="fila__lado">${sello(estado)}</div>
+          <div class="fila__lado">
+            <span class="estado-envoltura">
+              <select class="estado-rapido" data-e="${esc(estado)}" aria-label="Estado de ${esc(p.nombre || '')}">
+                ${selectHtml(ESTADOS_POSTULANTE, estado)}
+              </select>
+            </span>
+          </div>
         </article>`;
     }).join('') ||
       (cache.listo.postulantes
@@ -101,18 +107,43 @@ export function montarPostulantes(raiz) {
 
     lista.querySelectorAll('.fila').forEach((el) => {
       const p = (cache.postulantes || []).find((x) => x.id === el.dataset.id);
-      if (p) el.addEventListener('click', () => detallePostulante(p));
+      if (!p) return;
+      // La ficha se abre desde el nombre; el select vive aparte y no la dispara.
+      el.querySelector('.fila__principal').addEventListener('click', () => detallePostulante(p));
+      el.querySelector('.estado-rapido').addEventListener('change', (ev) => {
+        ev.stopPropagation();
+        cambiarEstado(p, ev.target);
+      });
     });
   }
 
-  function sello(estado) {
-    if (estado === 'interesado') return '<span class="sello sello--naranja">Interesado</span>';
-    if (estado === 'agendado') return '<span class="sello sello--naranja">Agendado</span>';
-    if (estado === 'activo') return '<span class="sello">Activo</span>';
-    if (estado === 'descartado') return '<span class="sello sello--rojo">Descartado</span>';
-    if (estado === 'no_responde') return '<span class="sello">No responde</span>';
-    if (estado === 'contactado') return '<span class="sello">Contactado</span>';
-    return '';
+  // Cambio de estado en la lista misma: es lo que la vuelve un pipeline
+  // sin necesidad de arrastrar tarjetas.
+  async function cambiarEstado(p, select) {
+    const nuevo = select.value;
+    const previo = p.estado || 'nuevo';
+    if (nuevo === previo) return;
+    select.dataset.guardando = '1';
+    try {
+      await updateDoc(doc(db, 'postulantes', p.id), {
+        estado: nuevo,
+        ultimaActividad: serverTimestamp(),
+        ...stamp(),
+      });
+      select.dataset.e = nuevo;
+      toast(`${p.nombre || 'Postulante'} → ${nombreEstado(nuevo)}`);
+    } catch (err) {
+      console.error(err);
+      select.value = previo;          // que la pantalla no mienta
+      toast('No se pudo cambiar el estado', true);
+    } finally {
+      delete select.dataset.guardando;
+    }
+  }
+
+  function nombreEstado(id) {
+    const e = ESTADOS_POSTULANTE.find((x) => x.id === id);
+    return e ? e.nombre : id;
   }
 
   // ============ DETALLE ============

@@ -1,0 +1,64 @@
+/* ============================================================
+   NOVEX PROMOTORES — estilos propios
+   Se carga DESPUÉS de ../gestion/estilos.css y solo agrega lo
+   que esta app necesita. No se toca la hoja compartida para no
+   mover nada de la gestión de la agencia.
+   ============================================================ */
+
+/* Cambiar el estado sin abrir la ficha: la lista se comporta
+   como un pipeline, pero sin el costo de un kanban de 7 columnas. */
+.estado-envoltura {
+  position: relative;
+  display: inline-block;
+}
+
+.estado-envoltura::after {
+  content: '▾';
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 9px;
+  color: var(--tenue-3);
+  pointer-events: none;
+}
+
+.estado-rapido {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--tarjeta-2);
+  color: var(--tenue);
+  border: 1px solid var(--borde);
+  padding: 5px 22px 5px 8px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.25s var(--suave), color 0.25s var(--suave);
+}
+
+.estado-rapido:hover { border-color: var(--tenue-3); }
+.estado-rapido:focus-visible { outline: 2px solid var(--naranja); outline-offset: 1px; }
+
+/* El color dice en qué punto del embudo está, de un vistazo. */
+.estado-rapido[data-e='interesado'],
+.estado-rapido[data-e='agendado'] { border-color: var(--naranja-oscuro); color: var(--naranja-claro); }
+.estado-rapido[data-e='activo']  { border-color: rgba(111, 174, 92, 0.5); color: var(--verde); }
+.estado-rapido[data-e='descartado'] { border-color: rgba(198, 91, 78, 0.45); color: var(--rojo); }
+.estado-rapido[data-e='no_responde'] { color: var(--minimo); }
+
+/* Mientras guarda, para que se note que algo pasó. */
+.estado-rapido[data-guardando='1'] { opacity: 0.5; pointer-events: none; }
+
+.estado-rapido option { background: var(--tarjeta); color: var(--crema); }
+
+/* La ficha se abre tocando el nombre, no toda la fila:
+   así el select no compite con el click de apertura. */
+.fila__principal { cursor: pointer; }
+
+/* Los contadores del embudo son 5 y la grilla de la gestión es de 4:
+   quedaba uno colgado solo en la segunda fila. */
+@media (min-width: 760px) {
+  .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+}

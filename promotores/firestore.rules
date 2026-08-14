@@ -33,7 +33,7 @@ service cloud.firestore {
     // El bot Juno: escribe postulantes desde n8n. No lee nada mas y no borra.
     function esJuno() {
       return request.auth != null
-        && request.auth.uid == '__UID_JUNO__';
+        && request.auth.uid == 'HBkuexr9OnV9j1WuXb4DLpxBcZU2';
     }
 
     // El formulario público de la landing crea consultas (solo crear,
