@@ -163,3 +163,24 @@
 @media (min-width: 760px) {
   .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 }
+
+/* ---- Alta manual de postulantes ----
+   El teléfono es el id del documento: si no coincide con el formato que usa
+   Juno se crea una ficha duplicada que nadie va a poder contactar. Por eso se
+   muestra cómo va a quedar ANTES de guardar. */
+.campo__ayuda {
+  font-size: 11px;
+  color: var(--tenue-3);
+  margin-top: 5px;
+  letter-spacing: 0.03em;
+}
+
+.campo__ayuda--bien { color: var(--verde); }
+.campo__ayuda--mal  { color: var(--rojo); }
+
+.campo__opc {
+  color: var(--tenue-3);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}

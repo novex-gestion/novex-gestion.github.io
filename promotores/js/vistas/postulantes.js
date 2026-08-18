@@ -2,7 +2,7 @@
 // Acá caen los candidatos a activador del canal Clover: Juno los contacta por
 // WhatsApp, los clasifica y escala; el equipo decide y registra el desenlace.
 import {
-  doc, updateDoc, deleteDoc, serverTimestamp, arrayUnion,
+  doc, updateDoc, deleteDoc, setDoc, getDoc, serverTimestamp, arrayUnion,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db, auth, stamp } from '../firebase.js';
 import { ESTADOS_POSTULANTE, nombrePersona, nombreAutor } from '../config.js';
@@ -35,6 +35,122 @@ function telLindo(t) {
   return `${d.slice(0, area)} ${resto.slice(0, resto.length - 4)}-${resto.slice(-4)}`;
 }
 
+// Lo que escribe una persona ("11 3495-3442", "011 15 3495 3442", "+54 9 11...")
+// tiene que terminar en el mismo formato que usa Juno, porque el teléfono ES el
+// id del documento: si no coincide, se crea una ficha duplicada.
+export function normalizarTel(entrada) {
+  let d = String(entrada || '').replace(/\D/g, '');
+  if (!d) return null;
+  d = d.replace(/^0+/, '');                      // 011... -> 11...
+  if (d.startsWith('54')) d = d.slice(2);        // país
+  if (d.startsWith('9')) d = d.slice(1);         // el 9 de móvil
+  d = d.replace(/^0+/, '');
+  // El 15 va después del código de área, que puede tener 2, 3 o 4 dígitos.
+  if (d.length === 12) {
+    for (const area of [2, 3, 4]) {
+      if (d.slice(area, area + 2) === '15') { d = d.slice(0, area) + d.slice(area + 2); break; }
+    }
+  }
+  if (d.length !== 10) return null;              // no se pudo interpretar
+  return '549' + d;
+}
+
+// Alta a mano: alguien que llegó por afuera del pool (una recomendación, un CV
+// suelto, alguien que escribió). Queda en NUEVO, listo para que Juno lo contacte.
+function altaManual(alGuardar) {
+  const m = modal('Nuevo postulante', `
+    <div class="modal__cuerpo">
+      <div class="campo">
+        <label class="campo__nombre" for="np-nombre">Nombre y apellido</label>
+        <input id="np-nombre" type="text" placeholder="Franco Gauna" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label class="campo__nombre" for="np-tel">Teléfono</label>
+        <input id="np-tel" type="tel" placeholder="11 3495-3442" autocomplete="off">
+        <p class="campo__ayuda mono" id="np-tel-eco">Como lo tengas: se acomoda solo.</p>
+      </div>
+      <div class="campo">
+        <label class="campo__nombre" for="np-localidad">Localidad</label>
+        <input id="np-localidad" type="text" placeholder="Pablo Podestá" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label class="campo__nombre" for="np-email">Email <span class="campo__opc">(opcional)</span></label>
+        <input id="np-email" type="email" placeholder="nombre@mail.com" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label class="campo__nombre" for="np-perfil">De dónde viene o qué hace</label>
+        <textarea id="np-perfil" rows="2" placeholder="Lo recomendó Mati. Vendió seguros dos años."></textarea>
+      </div>
+      <div class="modal__acciones">
+        <button type="button" class="boton" data-cerrar>Cancelar</button>
+        <button type="button" class="boton boton--lleno" data-crear>Agregar</button>
+      </div>
+    </div>`);
+
+  const $ = (id) => m.el.querySelector(id);
+  const eco = $('#np-tel-eco');
+
+  // Mostrar cómo va a quedar, antes de guardar: un teléfono mal cargado es una
+  // ficha que Juno nunca va a poder contactar.
+  $('#np-tel').addEventListener('input', (e) => {
+    const t = normalizarTel(e.target.value);
+    if (!e.target.value.trim()) {
+      eco.textContent = 'Como lo tengas: se acomoda solo.';
+      eco.classList.remove('campo__ayuda--mal', 'campo__ayuda--bien');
+    } else if (t) {
+      eco.textContent = `Va a quedar como ${telLindo(t)}`;
+      eco.classList.add('campo__ayuda--bien');
+      eco.classList.remove('campo__ayuda--mal');
+    } else {
+      eco.textContent = 'No lo entiendo. Faltan o sobran dígitos?';
+      eco.classList.add('campo__ayuda--mal');
+      eco.classList.remove('campo__ayuda--bien');
+    }
+  });
+
+  $('[data-crear]').addEventListener('click', async () => {
+    const nombre = $('#np-nombre').value.trim();
+    const tel = normalizarTel($('#np-tel').value);
+    if (!nombre) return toast('Ponele un nombre.');
+    if (!tel) return toast('Ese teléfono no se entiende. Revisalo.');
+
+    const boton = $('[data-crear]');
+    boton.disabled = true;
+    try {
+      // El id es el teléfono: si ya existe, NO se pisa la ficha.
+      const ref = doc(db, 'postulantes', tel);
+      const previo = await getDoc(ref);
+      if (previo.exists()) {
+        const d = previo.data();
+        toast(`${d.nombre || 'Ese número'} ya está cargado.`);
+        boton.disabled = false;
+        return;
+      }
+      await setDoc(ref, {
+        nombre,
+        telefono: tel,
+        localidad: $('#np-localidad').value.trim(),
+        email: $('#np-email').value.trim(),
+        perfil: $('#np-perfil').value.trim(),
+        estado: 'nuevo',
+        origen: 'carga manual',
+        creadoEl: serverTimestamp(),
+        ultimaActividad: serverTimestamp(),
+        ...stamp(),
+      });
+      m.cerrar();
+      toast(`${nombre} agregado. Ya lo podés mandar a contactar.`);
+      if (alGuardar) alGuardar();
+    } catch (e) {
+      console.error(e);
+      toast('No se pudo guardar.');
+      boton.disabled = false;
+    }
+  });
+
+  setTimeout(() => $('#np-nombre').focus(), 60);
+}
+
 export function montarPostulantes(raiz) {
   raiz.innerHTML = `
     <div class="vista__cab">
@@ -42,12 +158,15 @@ export function montarPostulantes(raiz) {
         <h1 class="vista__titulo">Postu<em>lantes</em></h1>
         <p class="vista__sub mono" id="pos-resumen"></p>
       </div>
+      <button type="button" class="boton boton--lleno" id="pos-nuevo">+ Postulante</button>
     </div>
     <div class="kpis" id="pos-kpis"></div>
     <div class="filtros" id="pos-filtros"></div>
     <div class="filas" id="pos-lista"></div>`;
 
   let filtro = 'pendientes';
+
+  raiz.querySelector('#pos-nuevo').addEventListener('click', () => altaManual(pintar));
 
   function pintar() {
     const lista = raiz.querySelector('#pos-lista');

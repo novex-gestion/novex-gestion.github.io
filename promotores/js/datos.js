@@ -24,7 +24,12 @@ export function conectarDatos() {
   for (const col of COLECCIONES) {
     paradas.push(
       onSnapshot(collection(db, col), (snap) => {
-        cache[col] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        // Los ids con "_" adelante no son fichas: son documentos internos
+        // (el conocimiento de Juno vive en postulantes/_juno_conocimiento
+        // porque es la única colección donde el bot tiene permiso de escritura).
+        cache[col] = snap.docs
+          .filter((d) => !d.id.startsWith('_'))
+          .map((d) => ({ id: d.id, ...d.data() }));
         cache.listo[col] = true;
         for (const fn of oyentes) fn(col);
       }, (err) => {
