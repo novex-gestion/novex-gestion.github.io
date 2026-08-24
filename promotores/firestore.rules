@@ -58,6 +58,9 @@ service cloud.firestore {
         && request.resource.data.turno is string
         && request.resource.data.turno.size() <= 80
         && request.resource.data.fecha is timestamp;
+      // El bot (workflow de meets) lee las consultas nuevas y les marca el
+      // evento de Calendar creado. No borra ni crea.
+      allow read, update: if esJuno();
     }
 
     // Candidatos a activador. Los ve el equipo del canal; Juno lee (para
