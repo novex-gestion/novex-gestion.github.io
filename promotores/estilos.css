@@ -184,3 +184,38 @@
   text-transform: none;
   letter-spacing: 0;
 }
+
+/* ---- Pipeline numerado (pedido de Juan, ago-2026) ----
+   TODOS y DESCARTADO se distinguen del resto del embudo; cada estado
+   lleva su número para hablar el mismo idioma por teléfono ("pasalo a 3"). */
+.filtro__num {
+  color: var(--naranja);
+  font-weight: 600;
+}
+.filtro.activo .filtro__num { color: var(--negro); }
+
+.filtro--todos {
+  background: var(--crema);
+  border-color: var(--crema);
+  color: var(--negro);
+  font-weight: 600;
+}
+.filtro--todos:hover { border-color: var(--crema); opacity: 0.85; }
+.filtro--todos.activo { background: var(--naranja); border-color: var(--naranja); }
+
+.filtro--descartado {
+  border-style: dashed;
+  color: var(--rojo);
+}
+.filtro--descartado .filtro__num { color: var(--rojo); }
+.filtro--descartado.activo {
+  background: var(--rojo);
+  border-color: var(--rojo);
+  color: var(--negro);
+}
+.filtro--descartado.activo .filtro__num { color: var(--negro); }
+
+/* Los boxes del embudo: todos visibles, cada uno con su número. */
+.kpi__num { color: var(--naranja); font-weight: 600; }
+.kpi__hint { color: var(--minimo); text-transform: none; letter-spacing: 0.05em; }
+.kpi--apagado { opacity: 0.6; }

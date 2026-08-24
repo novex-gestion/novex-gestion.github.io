@@ -5,25 +5,26 @@ import {
   doc, updateDoc, deleteDoc, setDoc, getDoc, serverTimestamp, arrayUnion,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db, auth, stamp } from '../firebase.js';
-import { ESTADOS_POSTULANTE, nombrePersona, nombreAutor } from '../config.js';
+import {
+  ESTADOS_POSTULANTE, ESTADOS_PIPELINE, nombreEstadoPostulante, nombrePersona, nombreAutor,
+} from '../config.js';
 import { cache, alCambiar } from '../datos.js';
 import {
   esc, fmtFechaCorta, haceDias, aFecha, modal, confirmar, toast, selectHtml,
 } from '../../../gestion/js/ui.js';
 
-// Los que piden atención humana primero.
+// Los que piden atención humana primero (ordenan la lista arriba de todo).
 const CALIENTES = ['interesado', 'agendado'];
 
 // El paso siguiente del embudo, para avanzar con un solo botón.
+// Desde "Llamar" (agendado) no hay siguiente automático: el pase a Activo se
+// hace con el botón "→ Equipo", que pide el número de activador de Trackeando.
 const PROXIMO = {
   nuevo: 'contactado',
   contactado: 'interesado',
   interesado: 'agendado',
-  agendado: 'manuales',
-  manuales: 'activo',
-  no_responde: 'contactado',
+  no_responde: 'contactado',   // fichas viejas
   descartado: 'contactado',
-  // 'activo' no tiene siguiente: ya está en la calle.
 };
 
 // 5491164127127 -> 11 6412-7127
@@ -164,7 +165,7 @@ export function montarPostulantes(raiz) {
     <div class="filtros" id="pos-filtros"></div>
     <div class="filas" id="pos-lista"></div>`;
 
-  let filtro = 'pendientes';
+  let filtro = 'todos';
 
   raiz.querySelector('#pos-nuevo').addEventListener('click', () => altaManual(pintar));
 
@@ -179,22 +180,28 @@ export function montarPostulantes(raiz) {
     raiz.querySelector('#pos-resumen').textContent =
       `${todos.length} postulantes` + (calientes ? ` · ${calientes} esperando respuesta tuya` : '');
 
-    // El embudo de un vistazo.
+    // El embudo de un vistazo: TODOS los estados, cada uno con su box.
     raiz.querySelector('#pos-kpis').innerHTML = ESTADOS_POSTULANTE
-      .filter((e) => e.enResumen)
       .map((e) => `
-        <div class="kpi">
-          <p class="kpi__nombre">${esc(e.nombre)}</p>
+        <div class="kpi ${e.tono === 'apagado' ? 'kpi--apagado' : ''}">
+          <p class="kpi__nombre">${e.num ? `<span class="kpi__num">${e.num}</span> ` : ''}${esc(e.nombre)}${e.enEquipo ? ' <span class="kpi__hint">→ Equipo</span>' : ''}</p>
           <p class="kpi__valor">${cuenta(e.id)}</p>
         </div>`).join('');
 
+    // Botones del pipeline: TODOS (distinto) + estados numerados. Activo no
+    // está: los activos viven en la solapa Equipo.
     const filtros = [
-      { id: 'pendientes', nombre: 'Para atender' },
-      { id: 'todos', nombre: 'Todos' },
-      ...ESTADOS_POSTULANTE.map((e) => ({ id: e.id, nombre: e.nombre })),
+      { id: 'todos', nombre: 'Todos', clase: 'filtro--todos' },
+      ...ESTADOS_PIPELINE.map((e) => ({
+        id: e.id,
+        nombre: e.nombre,
+        num: e.num,
+        clase: e.tono === 'apagado' ? 'filtro--descartado' : '',
+      })),
     ];
     raiz.querySelector('#pos-filtros').innerHTML = filtros.map((f) =>
-      `<button type="button" class="filtro ${f.id === filtro ? 'activo' : ''}" data-f="${esc(f.id)}">${esc(f.nombre)}</button>`
+      `<button type="button" class="filtro ${f.clase || ''} ${f.id === filtro ? 'activo' : ''}" data-f="${esc(f.id)}">${
+        f.num ? `<span class="filtro__num">${f.num}</span> ` : ''}${esc(f.nombre)}</button>`
     ).join('');
     raiz.querySelectorAll('#pos-filtros .filtro').forEach((b) =>
       b.addEventListener('click', () => { filtro = b.dataset.f; pintar(); })
@@ -203,8 +210,8 @@ export function montarPostulantes(raiz) {
     const visibles = todos
       .filter((p) => {
         const e = p.estado || 'nuevo';
+        if (e === 'activo') return false;   // los activos están en Equipo
         if (filtro === 'todos') return true;
-        if (filtro === 'pendientes') return CALIENTES.includes(e);
         return e === filtro;
       })
       .sort((a, b) => {
@@ -230,21 +237,24 @@ export function montarPostulantes(raiz) {
       ].filter(Boolean).join(' · ');
       const wa = String(p.telefono || '').replace(/\D/g, '');
       const sigue = PROXIMO[estado];
+      // Desde "Llamar" el paso siguiente es el equipo (pide N° de activador).
+      const alEquipo = ['agendado', 'manuales'].includes(estado);
+      const esperaMaterial = p.mandarManuales && !p.materialEnviado;
       return `
         <article class="fila fila--pos ${apagado ? 'fila--apagada' : ''}" data-id="${esc(p.id)}">
           <div class="pos__cab">
             <p class="fila__nombre">${esc(p.nombre || 'Sin nombre')}</p>
             <span class="estado-envoltura">
               <select class="estado-rapido" data-e="${esc(estado)}" aria-label="Estado de ${esc(p.nombre || '')}">
-                ${selectHtml(ESTADOS_POSTULANTE, estado)}
+                ${selectHtml(ESTADOS_PIPELINE, estado)}
               </select>
             </span>
           </div>
 
           <p class="fila__detalle">${esc(detalle || '—')}</p>
           ${p.llamadaCuando ? `<p class="pos__llamada">📞 Llamada: ${esc(p.llamadaCuando)}</p>` : ''}
-          ${p.materialEnviado ? `<p class="pos__material">✓ Material enviado · ${esc(fmtFechaCorta(p.materialEnviado))}</p>`
-            : (estado === 'manuales' ? '<p class="pos__material pos__material--espera">⏳ Juno le manda el material en unos minutos</p>' : '')}
+          ${p.materialEnviado ? `<p class="pos__material">✓ Manuales enviados · ${esc(fmtFechaCorta(p.materialEnviado))}</p>`
+            : (esperaMaterial ? '<p class="pos__material pos__material--espera">⏳ Juno le manda los manuales en unos minutos</p>' : '')}
           ${p.perfil ? `<p class="pos__perfil">${esc(p.perfil)}</p>` : ''}
           ${p.junoResumen ? `<p class="pos__juno">${esc(p.junoResumen)}</p>` : ''}
           ${ultimaNota(p)}
@@ -254,6 +264,10 @@ export function montarPostulantes(raiz) {
             ${botonJuno(p)}
             ${wa ? `<a class="boton boton--chico" href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener" data-no-abrir>WhatsApp</a>` : ''}
             ${sigue ? `<button type="button" class="boton boton--chico boton--lleno" data-avanzar>→ ${esc(nombreEstado(sigue))}</button>` : ''}
+            ${alEquipo ? '<button type="button" class="boton boton--chico boton--lleno" data-equipo>→ Equipo</button>' : ''}
+            ${!p.materialEnviado && !p.mandarManuales && ['interesado', 'agendado', 'manuales'].includes(estado)
+              ? '<button type="button" class="boton boton--chico" data-manuales>Mandar manuales</button>' : ''}
+            <button type="button" class="boton boton--chico" data-nota>+ Nota</button>
             ${estado !== 'descartado' ? '<button type="button" class="boton boton--chico" data-descartar>Descartar</button>' : ''}
             <button type="button" class="boton boton--chico" data-ficha>Ficha</button>
           </div>
@@ -273,9 +287,101 @@ export function montarPostulantes(raiz) {
       el.querySelector('[data-juno]')?.addEventListener('click', (ev) => pedirContacto(p, ev.target));
       el.querySelector('[data-avanzar]')?.addEventListener('click', () =>
         moverA(p, PROXIMO[p.estado || 'nuevo'], sel));
+      el.querySelector('[data-equipo]')?.addEventListener('click', () => pasarAlEquipo(p));
+      el.querySelector('[data-manuales]')?.addEventListener('click', (ev) => mandarManuales(p, ev.target));
+      el.querySelector('[data-nota]')?.addEventListener('click', () => notaRapida(p));
       el.querySelector('[data-descartar]')?.addEventListener('click', () =>
         moverA(p, 'descartado', sel));
     });
+  }
+
+  // ---- Pase al equipo: el número de activador se lo da Trackeando al hacer
+  // el alta en su CRM; queda en la ficha y el promotor pasa a la solapa Equipo.
+  function pasarAlEquipo(p) {
+    const m = modal(`Al equipo: ${p.nombre || ''}`, `
+      <div class="modal__cuerpo">
+        <p class="ficha">Pasa a la solapa Equipo como promotor activo. El número de
+        activador es el que te da el CRM de Trackeando al hacerle el alta.</p>
+        <div class="campo">
+          <label class="campo__nombre" for="eq-numero">N° de activador (Trackeando)</label>
+          <input id="eq-numero" type="text" placeholder="Ej: 1043" autocomplete="off">
+        </div>
+        <div class="modal__acciones">
+          <button type="button" class="boton" data-cerrar>Cancelar</button>
+          <button type="button" class="boton boton--lleno" data-pasar>Pasar al equipo</button>
+        </div>
+      </div>`);
+    m.el.querySelector('[data-pasar]').addEventListener('click', async () => {
+      const numero = m.el.querySelector('#eq-numero').value.trim();
+      try {
+        await updateDoc(doc(db, 'postulantes', p.id), {
+          estado: 'activo',
+          numeroActivador: numero,
+          activoDesde: serverTimestamp(),
+          ultimaActividad: serverTimestamp(),
+          historial: arrayUnion({
+            fecha: new Date().toISOString(),
+            texto: `Pasó al equipo${numero ? ` con el N° de activador ${numero}` : ' (falta el N° de activador)'}.`,
+            quien: nombrePersona(auth.currentUser.uid),
+          }),
+          ...stamp(),
+        });
+        m.cerrar();
+        toast(`${(p.nombre || '').split(' ')[0]} ya está en el Equipo 🎉`);
+      } catch (err) { console.error(err); toast('No se pudo pasar', true); }
+    });
+    setTimeout(() => m.el.querySelector('#eq-numero').focus(), 60);
+  }
+
+  // ---- Nota rápida, sin abrir la ficha ----
+  function notaRapida(p) {
+    const m = modal(`Nota: ${p.nombre || ''}`, `
+      <div class="modal__cuerpo">
+        <div class="campo">
+          <textarea id="nota-texto" rows="3" placeholder="Qué pasó…" autofocus></textarea>
+        </div>
+        <div class="modal__acciones">
+          <button type="button" class="boton" data-cerrar>Cancelar</button>
+          <button type="button" class="boton boton--lleno" data-guardar>Guardar nota</button>
+        </div>
+      </div>`);
+    m.el.querySelector('[data-guardar]').addEventListener('click', async () => {
+      const texto = m.el.querySelector('#nota-texto').value.trim();
+      if (!texto) return toast('La nota está vacía.');
+      try {
+        await updateDoc(doc(db, 'postulantes', p.id), {
+          historial: arrayUnion({
+            fecha: new Date().toISOString(),
+            texto,
+            quien: nombrePersona(auth.currentUser.uid),
+          }),
+          ultimaActividad: serverTimestamp(),
+          ...stamp(),
+        });
+        m.cerrar();
+        toast('Nota guardada');
+      } catch (err) { console.error(err); toast('No se pudo guardar', true); }
+    });
+    setTimeout(() => m.el.querySelector('#nota-texto').focus(), 60);
+  }
+
+  // ---- Mandarle los manuales: Juno los envía en su próxima pasada ----
+  async function mandarManuales(p, boton) {
+    boton.disabled = true;
+    boton.textContent = 'Encolando…';
+    try {
+      await updateDoc(doc(db, 'postulantes', p.id), {
+        mandarManuales: true,
+        ultimaActividad: serverTimestamp(),
+        ...stamp(),
+      });
+      toast(`Juno le manda los manuales a ${(p.nombre || '').split(' ')[0]} en unos minutos`);
+    } catch (err) {
+      console.error(err);
+      boton.disabled = false;
+      boton.textContent = 'Mandar manuales';
+      toast('No se pudo encolar', true);
+    }
   }
 
   // Cambio de estado en la lista misma: es lo que la vuelve un pipeline
@@ -378,9 +484,11 @@ export function montarPostulantes(raiz) {
         ${p.junoResumen ? `<p class="ficha"><b>Juno:</b> ${esc(p.junoResumen)}</p>` : ''}
         ${p.motivo ? `<p class="ficha"><b>Motivo:</b> ${esc(p.motivo)}</p>` : ''}
 
+        ${p.materialEnviado ? `<p class="ficha">✓ Manuales enviados el ${fmtFechaCorta(p.materialEnviado)}.</p>` : ''}
+
         <div class="campo">
           <label class="campo__nombre" for="pos-estado">Estado</label>
-          <select id="pos-estado">${selectHtml(ESTADOS_POSTULANTE, p.estado || 'nuevo')}</select>
+          <select id="pos-estado">${selectHtml(ESTADOS_PIPELINE, p.estado || 'nuevo')}</select>
         </div>
 
         <div class="campo">

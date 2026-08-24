@@ -38,19 +38,26 @@ export function nombreAutor(uid) {
   return EQUIPO[uid] ? EQUIPO[uid].nombre : '';
 }
 
-// El embudo del reclutamiento. `enResumen` decide si sale como KPI arriba.
+// El embudo del reclutamiento, numerado como lo pidió Juan (ago-2026).
+// "Manuales" y "No responde" dejaron de ser estados: los manuales son una
+// marca en la ficha (materialEnviado) y el que no responde queda descartado
+// con motivo. "Activo" no figura en el pipeline: vive en la solapa Equipo.
 export const ESTADOS_POSTULANTE = [
-  { id: 'nuevo',       nombre: 'Nuevo',        enResumen: true },
-  { id: 'contactado',  nombre: 'Contactado',   enResumen: true },
-  { id: 'interesado',  nombre: 'Interesado',   enResumen: true },
-  { id: 'agendado',    nombre: 'Agendado',     enResumen: true },
-  // Quedó en la llamada y recibe el material, pero todavía no salió a la calle:
-  // "activo" es el que ya está vendiendo. Entrar acá dispara el envío de los PDF.
-  { id: 'manuales',    nombre: 'Manuales',     enResumen: true },
-  { id: 'activo',      nombre: 'Activo',       enResumen: true },
-  { id: 'no_responde', nombre: 'No responde',  enResumen: false },
-  { id: 'descartado',  nombre: 'Descartado',   enResumen: false },
+  { id: 'nuevo',       nombre: 'Nuevo',        num: 1 },
+  { id: 'contactado',  nombre: 'Contactados',  num: 2 },
+  { id: 'interesado',  nombre: 'Interesados',  num: 3 },
+  // Mismo id interno de siempre ("agendado") para no migrar datos: solo
+  // cambia cómo se muestra.
+  { id: 'agendado',    nombre: 'Llamar',       num: 4 },
+  { id: 'activo',      nombre: 'Activo',       enEquipo: true },
+  { id: 'descartado',  nombre: 'Descartado',   num: 6, tono: 'apagado' },
 ];
+
+// Los que se muestran como botones del pipeline (sin Activo: esos están en Equipo).
+export const ESTADOS_PIPELINE = ESTADOS_POSTULANTE.filter((e) => !e.enEquipo);
+
+// Etiquetas para fichas viejas que aún tengan un estado retirado.
+const ESTADOS_RETIRADOS = { manuales: 'Manuales (viejo)', no_responde: 'No responde (viejo)' };
 
 // Lo que paga el canal por comercio activado, y lo que cobra el promotor.
 // Sirve para calcular el bono y el margen; si cambia el acuerdo, se toca acá.
@@ -63,7 +70,7 @@ export const PAGO = {
 
 export function nombreEstadoPostulante(id) {
   const e = ESTADOS_POSTULANTE.find((e) => e.id === id);
-  return e ? e.nombre : id || '—';
+  return e ? e.nombre : ESTADOS_RETIRADOS[id] || id || '—';
 }
 
 export function nombrePersona(uid) {
