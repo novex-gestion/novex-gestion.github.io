@@ -1,41 +1,10 @@
-// NOVEX GESTIÓN — Security Rules de Firestore.
-// Copia documental: la versión vigente se pega en la consola de
-// Firebase (Firestore → Reglas → Publicar).
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function esSocio() {
-      return request.auth != null
-        && request.auth.uid in [
-          '0H6nIW0JbzUI3igshz4HhLf66le2',
-          'NUTgVP6JJAbvJg2ay47GtDgpxrk1'
-        ];
-    }
-    // El formulario público de la landing crea consultas (solo crear,
-    // solo con esta forma exacta); leer/gestionar queda para los socios.
-    match /consultas/{id} {
-      allow create: if request.resource.data.keys().hasOnly(
-          ['nombre', 'negocio', 'rubro', 'telefono', 'email', 'turno', 'origen', 'estado', 'fecha'])
-        && request.resource.data.estado == 'nueva'
-        && request.resource.data.origen == 'web'
-        && request.resource.data.nombre is string
-        && request.resource.data.nombre.size() > 0
-        && request.resource.data.nombre.size() <= 120
-        && request.resource.data.negocio is string
-        && request.resource.data.negocio.size() > 0
-        && request.resource.data.negocio.size() <= 120
-        && request.resource.data.rubro is string
-        && request.resource.data.rubro.size() <= 60
-        && request.resource.data.telefono is string
-        && request.resource.data.telefono.size() <= 40
-        && request.resource.data.email is string
-        && request.resource.data.email.size() <= 120
-        && request.resource.data.turno is string
-        && request.resource.data.turno.size() <= 80
-        && request.resource.data.fecha is timestamp;
-    }
-    match /{document=**} {
-      allow read, write: if esSocio();
-    }
-  }
-}
+// ⚠ ESTE ARCHIVO YA NO ES LA FUENTE DE VERDAD.
+//
+// Las reglas canónicas de Firestore (proyecto novex-gestion) viven en
+//   ../promotores/firestore.rules
+// que cubre TODO: la agencia (/gestion/), el canal de promotores
+// (/promotores/ + bot Juno) y las consultas públicas de la landing.
+//
+// Lo que se pega en la consola de Firebase es SIEMPRE ese archivo.
+// Este quedó como puntero después de que un pegado parcial (2026, gestión
+// sin los permisos de Juno) dejó al bot sin acceso al CRM.
