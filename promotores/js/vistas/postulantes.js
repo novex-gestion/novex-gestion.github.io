@@ -180,11 +180,12 @@ export function montarPostulantes(raiz) {
     raiz.querySelector('#pos-resumen').textContent =
       `${todos.length} postulantes` + (calientes ? ` · ${calientes} esperando respuesta tuya` : '');
 
-    // El embudo de un vistazo: TODOS los estados, cada uno con su box.
+    // El embudo de un vistazo: TODOS los estados, cada uno con su box,
+    // en el orden del embudo (sin números a la vista: pedido de Iván).
     raiz.querySelector('#pos-kpis').innerHTML = ESTADOS_POSTULANTE
       .map((e) => `
         <div class="kpi ${e.tono === 'apagado' ? 'kpi--apagado' : ''}">
-          <p class="kpi__nombre">${e.num ? `<span class="kpi__num">${e.num}</span> ` : ''}${esc(e.nombre)}${e.enEquipo ? ' <span class="kpi__hint">→ Equipo</span>' : ''}</p>
+          <p class="kpi__nombre">${esc(e.nombre)}${e.enEquipo ? ' <span class="kpi__hint">→ Equipo</span>' : ''}</p>
           <p class="kpi__valor">${cuenta(e.id)}</p>
         </div>`).join('');
 
@@ -200,8 +201,7 @@ export function montarPostulantes(raiz) {
       })),
     ];
     raiz.querySelector('#pos-filtros').innerHTML = filtros.map((f) =>
-      `<button type="button" class="filtro ${f.clase || ''} ${f.id === filtro ? 'activo' : ''}" data-f="${esc(f.id)}">${
-        f.num ? `<span class="filtro__num">${f.num}</span> ` : ''}${esc(f.nombre)}</button>`
+      `<button type="button" class="filtro ${f.clase || ''} ${f.id === filtro ? 'activo' : ''}" data-f="${esc(f.id)}">${esc(f.nombre)}</button>`
     ).join('');
     raiz.querySelectorAll('#pos-filtros .filtro').forEach((b) =>
       b.addEventListener('click', () => { filtro = b.dataset.f; pintar(); })
