@@ -1,7 +1,7 @@
 // NOVEX — interacción de la landing editorial
 // Sin librerías: IntersectionObserver + CSS. Respeta prefers-reduced-motion.
 
-const WHATSAPP = '5491100000000'; // placeholder: reemplazar por el número real
+const WHATSAPP = '5491178201430';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const GLIFOS = '!@#$%&*<>?/[]{}XZ0123456789';
