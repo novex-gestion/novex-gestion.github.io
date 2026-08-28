@@ -1,0 +1,129 @@
+/* ============================================================
+   NOVEX BLOG — se apoya en los tokens de ../estilos.css
+   (que se carga antes). Portada + plantilla de artículo.
+   ============================================================ */
+
+/* ---- barra superior simple (portada y artículos) ---- */
+.blog-barra {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: rgba(11, 11, 12, 0.88);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--divisor);
+}
+.blog-barra__marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--crema); }
+.blog-barra__marca span { font-family: var(--display); font-weight: 800; letter-spacing: 0.05em; }
+.blog-barra__marca em { font-style: normal; color: var(--naranja); }
+.blog-barra__cta {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--negro); background: var(--naranja); padding: 9px 14px; text-decoration: none;
+}
+.blog-barra__cta:hover { background: var(--naranja-claro); }
+
+/* ---- portada ---- */
+.blog-portada {
+  position: relative; z-index: 1;
+  max-width: 860px; margin: 0 auto;
+  padding: 64px 24px 80px;
+}
+.blog-portada h1 {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(38px, 7vw, 64px);
+  line-height: 1.06; text-transform: uppercase;
+}
+.blog-portada h1 em { font-style: normal; color: var(--naranja); }
+.blog-portada__bajada { font-family: var(--mono); font-size: 13px; color: var(--tenue); margin-top: 14px; line-height: 1.7; max-width: 560px; }
+
+.blog-lista { display: flex; flex-direction: column; gap: 14px; margin-top: 44px; }
+.blog-tarjeta {
+  display: block;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  padding: 22px;
+  text-decoration: none; color: var(--crema);
+  transition: border-color 0.3s var(--suave), transform 0.3s var(--suave);
+}
+.blog-tarjeta:hover { border-color: var(--naranja); transform: translateY(-2px); }
+.blog-tarjeta__meta { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--naranja); }
+.blog-tarjeta h2 { font-family: var(--display); font-weight: 700; font-size: 22px; line-height: 1.25; margin: 8px 0 6px; }
+.blog-tarjeta p { font-size: 14px; color: var(--tenue); line-height: 1.6; }
+.blog-tarjeta__leer { display: inline-block; margin-top: 12px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--naranja-claro); }
+
+/* ---- artículo ---- */
+.articulo {
+  position: relative; z-index: 1;
+  max-width: 720px; margin: 0 auto;
+  padding: 56px 24px 80px;
+}
+.articulo__meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--naranja); }
+.articulo h1 {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(30px, 5.4vw, 46px);
+  line-height: 1.12; margin: 12px 0 10px;
+}
+.articulo__bajada { font-size: 17px; color: var(--tenue); line-height: 1.65; }
+.articulo__firma { font-family: var(--mono); font-size: 11px; color: var(--minimo); margin-top: 14px; padding-bottom: 26px; border-bottom: 1px solid var(--divisor); }
+
+.articulo h2 {
+  font-family: var(--display); font-weight: 700;
+  font-size: 23px; line-height: 1.25;
+  margin: 42px 0 12px;
+}
+.articulo h2 em { font-style: normal; color: var(--naranja); }
+.articulo p { font-size: 16px; line-height: 1.75; color: var(--crema); margin: 14px 0; }
+.articulo p.suave { color: var(--tenue); }
+.articulo ul, .articulo ol { margin: 14px 0 14px 4px; display: flex; flex-direction: column; gap: 9px; }
+.articulo li {
+  list-style: none;
+  font-size: 15.5px; line-height: 1.6;
+  padding-left: 22px; position: relative;
+}
+.articulo ul li::before {
+  content: '';
+  position: absolute; left: 0; top: 9px;
+  width: 12px; height: 3px;
+  background: linear-gradient(135deg, var(--naranja), var(--naranja-claro));
+}
+.articulo ol { counter-reset: paso; }
+.articulo ol li { counter-increment: paso; padding-left: 30px; }
+.articulo ol li::before {
+  content: counter(paso, decimal-leading-zero);
+  position: absolute; left: 0; top: 1px;
+  font-family: var(--mono); font-size: 12px; color: var(--naranja);
+}
+.articulo b, .articulo strong { color: var(--crema); }
+
+.articulo .destacado {
+  border-left: 2px solid var(--naranja);
+  padding: 4px 0 4px 16px;
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.7; color: var(--tenue);
+  margin: 22px 0;
+}
+
+/* la caja de cierre: un solo CTA por artículo */
+.articulo__cta {
+  margin-top: 48px;
+  background: var(--tarjeta);
+  border: 1px solid var(--naranja-oscuro);
+  padding: 26px;
+}
+.articulo__cta h2 { margin: 0 0 8px; font-size: 21px; }
+.articulo__cta p { color: var(--tenue); font-size: 15px; margin: 0 0 16px; }
+.articulo__cta a {
+  display: inline-block;
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--naranja); color: var(--negro);
+  padding: 13px 20px; text-decoration: none;
+}
+.articulo__cta a:hover { background: var(--naranja-claro); }
+
+.blog-pie {
+  border-top: 1px solid var(--divisor);
+  padding: 22px 24px calc(22px + env(safe-area-inset-bottom));
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--tenue-2); text-align: center;
+}
+.blog-pie a { color: var(--tenue); text-decoration: none; }
+.blog-pie a:hover { color: var(--naranja-claro); }

@@ -74,6 +74,26 @@ export const PLANTILLAS_WA = {
     '¡Bienvenido/a a NOVEX, {contacto}! Ya estamos arrancando con {negocio}. En estos días te escribimos para coordinar los primeros pasos. 🚀',
 };
 
+// El workflow editorial del blog (estándar del mercado: cada etapa con dueño
+// y criterio de terminado). El ticket nace en Ideas y muere en Publicado.
+export const ESTADOS_CONTENIDO = [
+  { id: 'idea',       nombre: 'Ideas' },
+  { id: 'brief',      nombre: 'Brief' },
+  { id: 'redaccion',  nombre: 'Redacción' },
+  { id: 'revision',   nombre: 'Revisión' },
+  { id: 'publicado',  nombre: 'Publicado' },
+  { id: 'descartada', nombre: 'Descartada', tono: 'apagado' },
+];
+
+export const RUBROS_CONTENIDO = [
+  { id: 'general',     nombre: 'General / todos' },
+  { id: 'gastronomia', nombre: 'Gastronomía' },
+  { id: 'estetica',    nombre: 'Peluquería y estética' },
+  { id: 'salud',       nombre: 'Salud y consultorios' },
+  { id: 'comercio',    nombre: 'Comercio de barrio' },
+  { id: 'servicios',   nombre: 'Servicios y oficios' },
+];
+
 export const TIPOS_INTERACCION = [
   { id: 'whatsapp', nombre: 'WhatsApp' },
   { id: 'llamada',  nombre: 'Llamada' },

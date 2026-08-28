@@ -71,6 +71,13 @@ service cloud.firestore {
       allow read, create, update: if esJuno();
     }
 
+    // Tablero editorial del blog (app /gestion/, pestaña Blog): el bot carga
+    // ideas, redacta y actualiza tickets al publicar. No borra.
+    match /contenido/{id} {
+      allow read, write: if esSocio();
+      allow read, create, update: if esJuno();
+    }
+
     // Todo lo demás (la agencia) sigue siendo solo de los socios.
     match /{document=**} {
       allow read, write: if esSocio();

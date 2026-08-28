@@ -13,6 +13,7 @@ import { montarClienteDetalle } from './vistas/cliente-detalle.js';
 import { montarCobranzas } from './vistas/cobranzas.js';
 import { montarTareas } from './vistas/tareas.js';
 import { montarGastos } from './vistas/gastos.js';
+import { montarContenido } from './vistas/contenido.js';
 import { iniciarBusqueda } from './busqueda.js';
 
 const pantallaLogin = document.getElementById('pantalla-login');
@@ -121,6 +122,7 @@ const RUTAS = {
   cobranzas: montarCobranzas,
   tareas: montarTareas,
   gastos: montarGastos,
+  blog: montarContenido,
 };
 
 function navegar() {

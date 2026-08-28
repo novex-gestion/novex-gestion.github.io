@@ -44,6 +44,8 @@ function abrirBusqueda() {
         .map((t) => ({ tipo: 'Tarea', nombre: t.titulo, detalle: t.estado, accion: () => { location.hash = '#/tareas'; } })),
       ...cache.gastos.filter((g) => pega(g.concepto, g.clienteNegocio))
         .map((g) => ({ tipo: 'Gasto', nombre: g.concepto, detalle: `${g.periodo} · ${fmtUsd(g.montoUsd)}`, accion: () => { location.hash = '#/gastos'; } })),
+      ...(cache.contenido || []).filter((t) => pega(t.titulo, t.pregunta, t.brief))
+        .map((t) => ({ tipo: 'Blog', nombre: t.titulo, detalle: t.estado, accion: () => { location.hash = '#/blog'; } })),
     ].slice(0, 12);
 
     caja.innerHTML = resultados.map((r, i) => `

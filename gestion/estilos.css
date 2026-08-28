@@ -265,7 +265,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .nav__item.activo::before { transform: scaleX(1); }
 .nav__num { font-size: 9px; color: var(--minimo); letter-spacing: 0.1em; }
 .nav__item.activo .nav__num { color: var(--naranja); }
-.nav__rotulo { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; }
+.nav__rotulo { font-size: 8.5px; letter-spacing: 0.04em; text-transform: uppercase; }
 
 /* ============ VISTA ============ */
 .vista {
