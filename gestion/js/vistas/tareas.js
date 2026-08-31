@@ -5,6 +5,7 @@ import {
 import { db, auth, stamp } from '../firebase.js';
 import { SOCIOS, nombreSocio } from '../config.js';
 import { cache, alCambiar } from '../datos.js';
+import { montarAdjuntos, selloAdjuntos } from '../adjuntos.js';
 import {
   esc, fmtFechaCorta, aFecha, aInputFecha, fechaDeInput, modal, confirmar, toast, selectHtml,
 } from '../ui.js';
@@ -88,6 +89,7 @@ export function montarTareas(raiz) {
           <div class="fila__lado">
             ${t.prioridad === 'alta' && t.estado === 'pendiente' ? '<span class="sello sello--naranja">Alta</span>' : ''}
             ${vencida ? '<span class="sello sello--rojo">Vencida</span>' : ''}
+            ${selloAdjuntos(t.adjuntos)}
           </div>
         </article>`;
     }).join('') ||
@@ -190,11 +192,16 @@ export function montarTareas(raiz) {
             )}</select>
           </label>
         </div>
+        <div id="tarea-adjuntos"></div>
         <div class="modal__acciones">
           <button type="button" class="boton" data-cerrar>Cancelar</button>
           <button type="submit" class="boton boton--lleno">${esAlta ? 'Crear tarea' : 'Guardar'}</button>
         </div>
       </form>`);
+
+    // En un alta todavía no hay documento donde colgarlos: el componente los junta
+    // y los escribe recién cuando la tarea existe.
+    const adj = montarAdjuntos(m.el.querySelector('#tarea-adjuntos'), 'tareas', esAlta ? null : t.id);
 
     m.el.querySelector('#form-tarea').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -211,14 +218,17 @@ export function montarTareas(raiz) {
       };
       try {
         if (esAlta) {
-          await addDoc(collection(db, 'tareas'), {
-            ...datos, estado: 'pendiente', completadaEl: null, completadaPor: null, ...stamp(true),
+          const ref = await addDoc(collection(db, 'tareas'), {
+            ...datos, estado: 'pendiente', completadaEl: null, completadaPor: null,
+            adjuntos: 0, ...stamp(true),
           });
-          toast('Tarea creada');
+          const n = await adj.guardarPendientes(ref.id);
+          toast(n ? `Tarea creada con ${n} adjunto${n > 1 ? 's' : ''}` : 'Tarea creada');
         } else {
           await updateDoc(doc(db, 'tareas', t.id), { ...datos, ...stamp() });
           toast('Tarea actualizada');
         }
+        adj.desconectar();
         m.cerrar();
       } catch (err) { console.error(err); toast('No se pudo guardar', true); }
     });

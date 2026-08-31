@@ -28,7 +28,7 @@ CRM interno de NOVEX. Vive en `https://somosnovex.com/gestion/` (link discreto
    (gastos de su bolsillo, aportes) y baja cuando saca (retiros, cobros que se quedó).
    La vista dice **quién le tiene que transferir cuánto a quién** para que el esfuerzo
    quede parejo según la participación, y registra esa transferencia de un click.
-8. **Tareas** — pendientes por socio y por cliente, prioridad y vencimiento.
+8. **Tareas** — pendientes por socio y por cliente, prioridad, vencimiento y **adjuntos**.
 
 Extra: búsqueda global (Ctrl+K o ⌕ del tope) sobre leads/clientes/tareas/gastos.
 
@@ -66,6 +66,29 @@ cuota: la cuota de julio cobrada el 4 de agosto entra en la caja de agosto. Por 
 KPI "Cobrado" de Cobros (que mide las cuotas del mes) y el "Entró" de Caja (que mide la
 plata del mes) pueden no coincidir: responden preguntas distintas, y así está dicho en
 pantalla.
+
+## Adjuntos
+
+`js/adjuntos.js` es el mismo componente para Tareas y para las Ideas del blog. Viven en
+una subcolección (`tareas/{id}/adjuntos`), no en el documento: las vistas escuchan las
+colecciones enteras en vivo y meter archivos ahí traería todos los adjuntos de todas.
+Colgados aparte, se cargan sólo al abrir la ficha. El documento padre guarda un contador
+`adjuntos` para poder mostrar el clip en los listados sin leer la subcolección.
+
+**Firebase Storage no está habilitado** (quedó fuera del plan gratuito en oct-2024), así
+que el archivo se guarda dentro de la base. Un documento de Firestore no puede pasar 1 MB
+y codificarlo lo agranda un tercio: **el techo real es ~525 KB de archivo**.
+
+- Las **imágenes** se achican a 1600 px y se comprimen a JPEG antes de subir, bajando la
+  calidad hasta que entren. Una foto de celular de 4 MB queda en ~200 KB.
+- Lo que **no es imagen** no se puede comprimir: si no entra, se avisa con el peso real y
+  se ofrece pegar el link.
+- Los **links** (Drive, Dropbox) no tienen límite y sirven para videos o PDFs pesados.
+  Sólo se aceptan `http(s)`: un `javascript:` pegado ahí se ejecutaría al abrirlo.
+- En un alta todavía no hay documento donde colgarlos, así que el componente los junta en
+  memoria y los escribe con `guardarPendientes(id)` apenas se crea.
+
+El día que se habilite Storage, lo único que cambia es de dónde sale `datos`.
 
 ## El dólar
 

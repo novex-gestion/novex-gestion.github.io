@@ -7,6 +7,7 @@ import {
 import { db, auth, stamp } from '../firebase.js';
 import { ESTADOS_CONTENIDO, RUBROS_CONTENIDO, nombreSocio } from '../config.js';
 import { cache, alCambiar } from '../datos.js';
+import { montarAdjuntos, selloAdjuntos } from '../adjuntos.js';
 import {
   esc, fmtFecha, fmtFechaCorta, haceDias, aFecha, aInputFecha, fechaDeInput,
   modal, confirmar, toast, selectHtml, normalizar,
@@ -96,6 +97,7 @@ export function montarContenido(raiz) {
           <div class="lead__sellos">
             ${vencida ? '<span class="sello sello--rojo">Atrasada</span>' : ''}
             ${t.linkPublicado ? '<span class="sello sello--verde">Online</span>' : ''}
+            ${selloAdjuntos(t.adjuntos)}
           </div>
           <div class="lead__mover">
             <button type="button" class="lead__flecha" data-delta="-1" ${idx <= 0 ? 'disabled' : ''} aria-label="Etapa anterior">‹</button>
@@ -177,12 +179,17 @@ export function montarContenido(raiz) {
           <button type="submit" class="boton boton--chico">Sumar</button>
         </form>
 
+        <div id="idea-adjuntos"></div>
+
         <div class="modal__acciones">
           <button type="button" class="boton boton--peligro" data-borrar>Borrar</button>
           <button type="button" class="boton" data-descartar>Descartar</button>
           <button type="button" class="boton" data-editar>Editar</button>
         </div>
       </div>`);
+
+    // Referencias, capturas, el brief en PDF: todo colgado del ticket.
+    const adjFicha = montarAdjuntos(m.el.querySelector('#idea-adjuntos'), 'contenido', id);
 
     m.el.querySelector('#form-nota').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -253,11 +260,14 @@ export function montarContenido(raiz) {
           <span class="campo__nombre mono">Brief (qué tiene que responder, estructura, datos)</span>
           <textarea name="brief" rows="4" placeholder="- A quién le habla&#10;- Qué se lleva el que lo lee&#10;- Secciones&#10;- CTA">${esc(t.brief || '')}</textarea>
         </label>
+        <div id="ticket-adjuntos"></div>
         <div class="modal__acciones">
           <button type="button" class="boton" data-cerrar>Cancelar</button>
           <button type="submit" class="boton boton--lleno">${esAlta ? 'Crear ticket' : 'Guardar'}</button>
         </div>
       </form>`);
+
+    const adj = montarAdjuntos(m.el.querySelector('#ticket-adjuntos'), 'contenido', esAlta ? null : t.id);
 
     // Anti-redundancia: avisa si ya hay un ticket que suena parecido.
     const inputTitulo = m.el.querySelector('[name=titulo]');
@@ -293,19 +303,22 @@ export function montarContenido(raiz) {
       };
       try {
         if (esAlta) {
-          await addDoc(collection(db, 'contenido'), {
+          const ref = await addDoc(collection(db, 'contenido'), {
             ...datos,
             estado: 'idea',
             estadoCambiadoEl: serverTimestamp(),
             linkPublicado: '',
             notas: [],
+            adjuntos: 0,
             ...stamp(true),
           });
-          toast('Idea en el tablero');
+          const n = await adj.guardarPendientes(ref.id);
+          toast(n ? `Idea en el tablero con ${n} adjunto${n > 1 ? 's' : ''}` : 'Idea en el tablero');
         } else {
           await updateDoc(doc(db, 'contenido', t.id), { ...datos, ...stamp() });
           toast('Ticket actualizado');
         }
+        adj.desconectar();
         m.cerrar();
       } catch (err) { console.error(err); toast('No se pudo guardar', true); }
     });
