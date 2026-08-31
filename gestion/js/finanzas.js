@@ -24,6 +24,11 @@ import { SOCIOS, participacion, nombreSocio } from './config.js';
 import { aFecha } from './ui.js';
 
 const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+
+// El mes de un movimiento de caja es el mes en que la plata se movió, NO el mes al
+// que corresponde la cuota. La cuota de julio cobrada el 4 de agosto entró en agosto:
+// mostrarla en julio haría que la caja de un mes no coincida con lo que pasó ese mes.
+const periodoDeFecha = (f) => (f ? `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}` : null);
 const monto = (v) => Number(v) || 0;
 
 // Un cobro sin `recibidoPor` es anterior al campo: se asume que entró a la
@@ -48,10 +53,11 @@ export function libro(cache) {
     const m = monto(g.montoUsd);
     if (!m) continue;
     const deSocio = g.pagadoPor && g.pagadoPor !== 'novex';
+    const fechaG = aFecha(g.fecha);
     filas.push({
       id: 'gasto:' + g.id,
-      fecha: aFecha(g.fecha),
-      periodo: g.periodo,
+      fecha: fechaG,
+      periodo: periodoDeFecha(fechaG) || g.periodo,
       concepto: g.concepto,
       detalle: g.clienteNegocio || null,
       clase: 'gasto',
@@ -68,10 +74,11 @@ export function libro(cache) {
     if (!m) continue;
     const quien = recibidoPor(p);
     const deSocio = quien !== 'novex';
+    const fechaC = aFecha(p.fechaCobro) || aFecha(p.vence);
     filas.push({
       id: 'cobro:' + p.id,
-      fecha: aFecha(p.fechaCobro) || aFecha(p.vence),
-      periodo: p.periodo,
+      fecha: fechaC,
+      periodo: periodoDeFecha(fechaC) || p.periodo,
       concepto: 'Cobro · ' + (p.clienteNegocio || ''),
       detalle: p.medioPago || null,
       clase: 'cobro',
@@ -91,10 +98,11 @@ export function libro(cache) {
     const porDefecto = mv.tipo === 'neteo' && mv.socio && mv.socioDestino
       ? `Neteo: ${nombreSocio(mv.socio)} → ${nombreSocio(mv.socioDestino)}`
       : rotuloTipo(mv.tipo);
+    const fechaM = aFecha(mv.fecha);
     const base = {
       id: 'mov:' + mv.id,
-      fecha: aFecha(mv.fecha),
-      periodo: mv.periodo,
+      fecha: fechaM,
+      periodo: periodoDeFecha(fechaM) || mv.periodo,
       concepto: mv.concepto || porDefecto,
       detalle: mv.detalle || null,
       clase: mv.tipo,
@@ -107,6 +115,9 @@ export function libro(cache) {
     } else if (mv.tipo === 'retiro' || mv.tipo === 'reintegro') {
       filas.push({ ...base, caja: -m, cuentaSocio: -m });
     } else if (mv.tipo === 'neteo') {
+      // Sin las dos puntas la contrapartida no le llega a nadie y el total de lo
+      // puesto entre los socios quedaría inflado. Un neteo incompleto no existe.
+      if (!mv.socio || !mv.socioDestino) continue;
       // Quien PAGA el neteo termina habiendo puesto más plata en el negocio, así que
       // su cuenta SUBE; quien la recibe puso menos, y baja. (Al revés, emparejar
       // agrandaría la diferencia y el módulo pediría transferencias sin fin.)

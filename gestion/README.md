@@ -54,7 +54,18 @@ Dos decisiones que conviene no olvidar:
 Participación de los socios: `SOCIOS[uid].parte` en `js/config.js` (hoy 50/50). Cambiar
 ese número recalcula todo el neteo; si las partes no suman 1 se normalizan.
 
-Test: `node js/finanzas.test.mjs` (no necesita instalar nada ni tocar Firebase).
+Dos redes de seguridad, ninguna necesita instalar nada ni tocar Firebase:
+
+- `node js/finanzas.test.mjs` — comprueba que lo que tiene que funcionar, funcione.
+- `node js/auditoria-finanzas.mjs` — intenta ROMPERLO: datos incompletos, fechas
+  cruzadas, cobros de más, neteos mal cargados. Encontró dos bugs que ya están
+  arreglados (el neteo infinito y el mes equivocado en la caja).
+
+**El mes de un movimiento de caja es el mes en que la plata se movió**, no el de la
+cuota: la cuota de julio cobrada el 4 de agosto entra en la caja de agosto. Por eso el
+KPI "Cobrado" de Cobros (que mide las cuotas del mes) y el "Entró" de Caja (que mide la
+plata del mes) pueden no coincidir: responden preguntas distintas, y así está dicho en
+pantalla.
 
 ## El dólar
 

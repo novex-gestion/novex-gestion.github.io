@@ -74,7 +74,8 @@ export function montarCobranzas(raiz) {
 
     raiz.querySelector('#cob-kpis').innerHTML = `
       <div class="kpi"><p class="kpi__nombre">Recurrente (activos)</p><p class="kpi__valor naranja">${fmtUsd(mrr)}</p></div>
-      <div class="kpi"><p class="kpi__nombre">Cobrado ${esc(periodo)}</p><p class="kpi__valor verde">${fmtUsd(cobrado)}</p></div>
+      <div class="kpi"><p class="kpi__nombre">Cobrado de las cuotas del mes</p><p class="kpi__valor verde">${fmtUsd(cobrado)}</p>
+        <p class="kpi__pie mono">de las cuotas de ${esc(periodo)} — la plata que entró en el mes está en Caja</p></div>
       <div class="kpi"><p class="kpi__nombre">Pendiente</p><p class="kpi__valor">${fmtUsd(pendiente)}</p></div>
       <div class="kpi"><p class="kpi__nombre">Vencido</p><p class="kpi__valor ${vencido ? 'rojo' : ''}">${fmtUsd(vencido)}</p></div>`;
 
