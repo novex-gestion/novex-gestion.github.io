@@ -45,6 +45,11 @@ Dos decisiones que conviene no olvidar:
   fin. Hay un test que lo cubre.
 - **Lo vencido de un cliente nunca supera su saldo**: si se le bonificó algo, no se le
   puede reclamar.
+- **Los nombres de los socios no se congelan en los textos.** El concepto de un neteo se
+  arma al mostrarlo (`Neteo: Nico → Juan`), no al guardarlo: si alguien cambia de nombre,
+  los movimientos viejos no quedan mintiendo. Si se escribe un concepto a mano, manda ese.
+- `formularioMovimiento()` distingue **alta prellenada** de **edición** por `movimiento.id`,
+  no por si vino un objeto: Socios lo abre con los datos del neteo cargados pero sin id.
 
 Participación de los socios: `SOCIOS[uid].parte` en `js/config.js` (hoy 50/50). Cambiar
 ese número recalcula todo el neteo; si las partes no suman 1 se normalizan.

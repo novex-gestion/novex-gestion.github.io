@@ -105,7 +105,10 @@ export function montarCaja(raiz) {
 
 // ============ ALTA / EDICIÓN DE MOVIMIENTO ============
 export function formularioMovimiento(movimiento, tipoInicial, periodoVisible) {
-  const esAlta = !movimiento;
+  // Ojo: Socios abre este formulario con los datos del neteo YA cargados, pero sin
+  // id: eso es un alta prellenada, no una edición. Mirar sólo si vino un objeto
+  // hacía que intentara actualizar un documento inexistente y fallara al guardar.
+  const esAlta = !movimiento || !movimiento.id;
   const mv = movimiento || {};
   const tipo = mv.tipo || tipoInicial || 'ingreso';
   const yo = auth.currentUser ? auth.currentUser.uid : Object.keys(SOCIOS)[0];
@@ -139,7 +142,7 @@ export function formularioMovimiento(movimiento, tipoInicial, periodoVisible) {
       </label>
       <label class="campo">
         <span class="campo__nombre mono">Concepto</span>
-        <input type="text" name="concepto" placeholder="Para qué fue" value="${esc(mv.concepto || '')}">
+        <input type="text" name="concepto" placeholder="Opcional — si lo dejás vacío se describe solo" value="${esc(mv.concepto || '')}">
       </label>
       <div class="modal__acciones">
         ${esAlta
@@ -191,7 +194,7 @@ export function formularioMovimiento(movimiento, tipoInicial, periodoVisible) {
       montoUsd: Number(f.monto.value) || 0,
       socio: necesitaSocio ? f.socio.value : null,
       socioDestino: t === 'neteo' ? f.destino.value : null,
-      concepto: f.concepto.value.trim() || nombreTipoMovimiento(t),
+      concepto: f.concepto.value.trim(),   // vacío = lo describe el motor con los nombres actuales
     };
     try {
       if (esAlta) {

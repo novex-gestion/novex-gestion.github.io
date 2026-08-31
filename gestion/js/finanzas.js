@@ -20,7 +20,7 @@
 //
 // Saldo de la cuenta de un socio POSITIVO = NOVEX le debe a él.
 // ============================================================
-import { SOCIOS, participacion } from './config.js';
+import { SOCIOS, participacion, nombreSocio } from './config.js';
 import { aFecha } from './ui.js';
 
 const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
@@ -86,11 +86,16 @@ export function libro(cache) {
   for (const mv of cache.movimientos) {
     const m = monto(mv.montoUsd);
     if (!m) continue;
+    // El nombre de los socios NO se congela en el texto: se resuelve cada vez que se
+    // muestra. Si alguien cambia de nombre, los movimientos viejos no quedan mintiendo.
+    const porDefecto = mv.tipo === 'neteo' && mv.socio && mv.socioDestino
+      ? `Neteo: ${nombreSocio(mv.socio)} → ${nombreSocio(mv.socioDestino)}`
+      : rotuloTipo(mv.tipo);
     const base = {
       id: 'mov:' + mv.id,
       fecha: aFecha(mv.fecha),
       periodo: mv.periodo,
-      concepto: mv.concepto || rotuloTipo(mv.tipo),
+      concepto: mv.concepto || porDefecto,
       detalle: mv.detalle || null,
       clase: mv.tipo,
       origen: 'movimientos',

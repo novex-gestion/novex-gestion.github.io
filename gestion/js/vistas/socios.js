@@ -70,7 +70,7 @@ export function montarSocios(raiz) {
             montoUsd: t.monto,
             socio: t.de,
             socioDestino: t.a,
-            concepto: `Neteo: ${nombreSocio(t.de)} → ${nombreSocio(t.a)}`,
+            // sin concepto: el motor lo describe con los nombres del momento en que se mira
           },
           'neteo'
         );
