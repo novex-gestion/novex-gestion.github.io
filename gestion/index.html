@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="estilos.css?v=3">
+  <link rel="stylesheet" href="estilos.css?v=4">
 </head>
 <body>
   <div class="fondo-grilla" aria-hidden="true"></div>
@@ -51,6 +51,7 @@
         <span class="tope__mod mono">GESTIÓN</span>
       </a>
       <div class="tope__usuario">
+        <span id="chip-dolar" class="chip-dolar mono" title="Dólar blue promedio de hoy" hidden></span>
         <button id="btn-buscar" class="tope__buscar mono" type="button" aria-label="Buscar (Ctrl+K)">⌕ Buscar</button>
         <span id="usuario-nombre" class="mono"></span>
         <button id="btn-salir" class="tope__salir mono" type="button">Salir</button>
@@ -93,6 +94,6 @@
   <div id="modal-raiz"></div>
   <div id="toast-raiz" aria-live="polite"></div>
 
-  <script type="module" src="js/app.js?v=7"></script>
+  <script type="module" src="js/app.js?v=8"></script>
 </body>
 </html>

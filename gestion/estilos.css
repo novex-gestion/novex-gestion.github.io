@@ -676,3 +676,11 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   font-family: var(--display); font-size: 17px; font-weight: 700;
   line-height: 1.35; letter-spacing: -0.01em;
 }
+
+/* dólar blue de hoy, en el tope */
+.chip-dolar {
+  font-size: 10px; letter-spacing: 0.1em; color: var(--verde);
+  border: 1px solid rgba(111, 174, 92, 0.35); padding: 3px 8px; white-space: nowrap;
+}
+/* pie de ayuda dentro de un campo de formulario */
+.campo__pie { font-size: 10px; color: var(--tenue-3); margin-top: 5px; line-height: 1.45; display: block; }

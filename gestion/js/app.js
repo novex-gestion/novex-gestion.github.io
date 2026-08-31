@@ -17,6 +17,7 @@ import { montarCaja } from './vistas/caja.js';
 import { montarSocios } from './vistas/socios.js';
 import { montarContenido } from './vistas/contenido.js';
 import { iniciarBusqueda } from './busqueda.js';
+import { blueHoy, fmtPesos } from './dolar.js';
 
 const pantallaLogin = document.getElementById('pantalla-login');
 const pantallaApp = document.getElementById('pantalla-app');
@@ -84,6 +85,7 @@ function iniciar() {
       pantallaApp.hidden = false;
       document.getElementById('usuario-nombre').textContent = nombreSocio(usuario.uid);
       conectarDatos();
+      mostrarDolar();
       navegar();
     } else {
       if (usuario) {
@@ -101,6 +103,19 @@ function iniciar() {
   window.addEventListener('hashchange', () => {
     if (!pantallaApp.hidden) navegar();
   });
+}
+
+// El blue de hoy, arriba a la derecha: es el número con el que se convierte todo
+// lo que se carga en pesos, así que conviene tenerlo a la vista.
+async function mostrarDolar() {
+  const chip = document.getElementById('chip-dolar');
+  if (!chip) return;
+  const cot = await blueHoy();
+  if (!cot) return;                  // sin cotización, no se muestra un número inventado
+  chip.textContent = `blue ${fmtPesos(cot.promedio)}`;
+  chip.title = `Dólar blue de hoy — compra ${fmtPesos(cot.compra)} / venta ${fmtPesos(cot.venta)}. `
+    + 'Es el promedio, y es lo que se usa para convertir lo que se carga en pesos.';
+  chip.hidden = false;
 }
 
 function mensajeError(err) {

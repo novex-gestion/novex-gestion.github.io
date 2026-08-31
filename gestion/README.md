@@ -18,8 +18,9 @@ CRM interno de NOVEX. Vive en `https://somosnovex.com/gestion/` (link discreto
    (caja NOVEX o el bolsillo de un socio). *Cuenta corriente*: saldo acumulado por
    cliente = cuotas + cargos sueltos − cobrado. Los cargos (setup, trabajo extra,
    pauta) y los créditos (bonificaciones) se cargan con "+ Cargo".
-5. **Gastos** — puntuales y fijos recurrentes (ID `fijoId_YYYY-MM`), USD/ARS con tipo
-   de cambio, categoría, cliente opcional (margen) y quién lo pagó.
+5. **Gastos** — puntuales y fijos recurrentes (ID `fijoId_YYYY-MM`), categoría, cliente
+   opcional (margen) y quién lo pagó. Lo cargado en ARS se convierte con el **blue
+   promedio del día del gasto**, que se trae solo (ver abajo).
 6. **Caja** — la plata de la sociedad. Los gastos pagados por la cuenta NOVEX y los
    cobros que entraron a la caja aparecen **solos**: no se cargan dos veces. A mano
    sólo se registran aportes, retiros, reintegros y ajustes.
@@ -50,13 +51,36 @@ ese número recalcula todo el neteo; si las partes no suman 1 se normalizan.
 
 Test: `node js/finanzas.test.mjs` (no necesita instalar nada ni tocar Firebase).
 
+## El dólar
+
+`js/dolar.js` trae el **blue promedio** ((compra + venta) / 2) y lo deja disponible para
+todo el sistema. Dos fuentes, las dos con CORS abierto:
+
+- **hoy** → `dolarapi.com` (se mueve durante el día)
+- **días anteriores** → `api.argentinadatos.com` (serie ya cerrada)
+
+Reglas que conviene no romper:
+
+- Se usa **la cotización del día de la operación**, no la de hoy: convertir un gasto de
+  hace tres meses con el dólar de hoy da un número que no existió nunca.
+- El tipo de cambio **se completa solo pero es editable**. Si alguien lo escribe a mano,
+  manda lo que escribió (pagar a otro tipo —tarjeta, cripto, un arreglo— es normal); la
+  nota igual muestra cuál era el blue de ese día para poder comparar.
+- Los gastos ya cargados **no se recalculan**: su `tc` quedó congelado, como debe ser.
+- Las cotizaciones pasadas se guardan en Firestore (`cotizaciones/YYYY-MM-DD`): queda
+  registro de con qué número se convirtió cada cosa y el sistema anda aunque la API se
+  caiga. La de hoy no se cachea en la base, porque el mercado se sigue moviendo.
+- Si no se puede traer la cotización, **no se inventa un número**: se pide a mano.
+
+El blue de hoy se muestra en el tope de la app.
+
 ## Seguridad
 
 - El repo es público: la `firebaseConfig` de `js/config.js` es pública **por diseño**;
   la seguridad real son Firebase Auth + las Security Rules (`firestore.rules`, la
   versión vigente se pega en la consola) que restringen lectura/escritura a los UIDs
   de los dos socios. Las colecciones nuevas (`movimientos`, `cargos`) quedan cubiertas
-  por la regla catch-all de socios: no hubo que tocar las reglas.
+  por la regla catch-all de socios: no hubo que tocar las reglas. Lo mismo `cotizaciones`.
 - Registro de usuarios deshabilitado en la consola (solo existen las 2 cuentas).
 - `noindex` + sin robots.txt (un Disallow anunciaría la ruta).
 

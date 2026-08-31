@@ -6,6 +6,7 @@ import {
 import { db, auth, stamp } from '../firebase.js';
 import { SOCIOS, CATEGORIAS_GASTO, nombreCategoria, nombrePagador } from '../config.js';
 import { cache, alCambiar } from '../datos.js';
+import { blueDe, fmtPesos } from '../dolar.js';
 import {
   esc, fmtUsd, fmtFechaCorta, aFecha, aInputFecha, fechaDeInput, periodoDe, nombrePeriodo, sumarMeses,
   modal, confirmar, toast, selectHtml,
@@ -180,6 +181,7 @@ function formularioGasto(gasto, periodoVisible) {
       <label class="campo" id="campo-tc" ${!g.moneda || g.moneda === 'USD' ? 'hidden' : ''}>
         <span class="campo__nombre mono">Tipo de cambio (ARS por USD) *</span>
         <input type="number" name="tc" min="1" step="0.01" value="${g.tc || ''}" placeholder="1500">
+        <span class="campo__pie mono" id="tc-nota"></span>
       </label>
       <div class="campos-2">
         <label class="campo">
@@ -200,9 +202,36 @@ function formularioGasto(gasto, periodoVisible) {
     </form>`);
 
   const form = m.el.querySelector('#form-gasto');
+  const nota = m.el.querySelector('#tc-nota');
+
+  // El tipo de cambio se completa con el blue promedio DEL DÍA DEL GASTO: convertir
+  // con el dólar de hoy algo de hace tres meses da un número que no existió nunca.
+  // Si Iván o Juan lo escriben a mano, manda lo que escribieron: pagar a otro tipo
+  // (tarjeta, cripto, un arreglo puntual) es normal y el sistema no discute.
+  let tcTocadoAMano = !esAlta && !!g.tc;
+
+  async function traerCotizacion() {
+    if (form.moneda.value !== 'ARS') return;
+    const fecha = form.fecha.value;
+    if (!fecha) return;
+    nota.textContent = '// buscando el blue de ese día…';
+    const cot = await blueDe(fecha);
+    if (!cot) {
+      nota.textContent = '// no se pudo traer la cotización: ponelo a mano.';
+      return;
+    }
+    nota.textContent = `// blue promedio del ${fecha.split('-').reverse().join('/')}: ${fmtPesos(cot.promedio)}`
+      + ` (compra ${fmtPesos(cot.compra)} / venta ${fmtPesos(cot.venta)})`;
+    if (!tcTocadoAMano) form.tc.value = cot.promedio;
+  }
+
+  form.tc.addEventListener('input', () => { tcTocadoAMano = true; });
+  form.fecha.addEventListener('change', traerCotizacion);
   form.moneda.addEventListener('change', () => {
     m.el.querySelector('#campo-tc').hidden = form.moneda.value === 'USD';
+    if (form.moneda.value === 'ARS') traerCotizacion();
   });
+  if ((g.moneda || 'USD') === 'ARS') traerCotizacion();
 
   if (!esAlta) {
     m.el.querySelector('[data-borrar]').addEventListener('click', async () => {
