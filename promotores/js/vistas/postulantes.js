@@ -181,7 +181,7 @@ export function montarPostulantes(raiz) {
       `${todos.length} postulantes` + (calientes ? ` · ${calientes} esperando respuesta tuya` : '');
 
     // El embudo de un vistazo: TODOS los estados, cada uno con su box,
-    // en el orden del embudo (sin números a la vista: pedido de Iván).
+    // en el orden del embudo (sin números a la vista: pedido de Nico).
     raiz.querySelector('#pos-kpis').innerHTML = ESTADOS_POSTULANTE
       .map((e) => `
         <div class="kpi ${e.tono === 'apagado' ? 'kpi--apagado' : ''}">

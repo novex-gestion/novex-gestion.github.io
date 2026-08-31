@@ -13,7 +13,7 @@ service cloud.firestore {
     function esSocio() {
       return request.auth != null
         && request.auth.uid in [
-          '0H6nIW0JbzUI3igshz4HhLf66le2',   // Iván
+          '0H6nIW0JbzUI3igshz4HhLf66le2',   // Nico
           'NUTgVP6JJAbvJg2ay47GtDgpxrk1'    // Juan
         ];
     }
@@ -24,7 +24,7 @@ service cloud.firestore {
     function esEquipoCanal() {
       return request.auth != null
         && request.auth.uid in [
-          '0H6nIW0JbzUI3igshz4HhLf66le2',   // Iván
+          '0H6nIW0JbzUI3igshz4HhLf66le2',   // Nico
           'NUTgVP6JJAbvJg2ay47GtDgpxrk1',   // Juan
           'prsS6TSmQQfNkU3Xv73mfwNAIMH3'    // admin@novex.bot (cuenta compartida)
         ];

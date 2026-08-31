@@ -121,7 +121,7 @@ export function montarEquipo(raiz) {
   // ============ COORDINADORES DE JUNO ============
   // Viven en postulantes/_coordinadores (la colección donde Juno puede leer).
   // Juno les avisa las novedades y les acepta órdenes por WhatsApp, además
-  // de Iván y Juan que están siempre.
+  // de Nico y Juan que están siempre.
   const REF_COORD = doc(db, 'postulantes', '_coordinadores');
 
   async function pintarCoordinadores() {
@@ -138,7 +138,7 @@ export function montarEquipo(raiz) {
         <button type="button" class="boton boton--chico" id="coord-nuevo">+ Coordinador</button>
       </h2>
       <p class="modal__nota" style="margin-bottom:10px">// Reciben los avisos de Juno y pueden darle
-      órdenes por WhatsApp. Iván y Juan están siempre, sin cargarse acá.</p>
+      órdenes por WhatsApp. Nico y Juan están siempre, sin cargarse acá.</p>
       <div class="filas">
         ${lista.map((c, i) => `
           <div class="fila">

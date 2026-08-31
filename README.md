@@ -36,7 +36,7 @@ web/
 
 ## Decisiones
 
-- **Mezcla deliberada** (pedida por Iván): el look experimental viene del handoff de Claude
+- **Mezcla deliberada** (pedida por Nico): el look experimental viene del handoff de Claude
   Design; el contenido comercial (recorrido de paquetes, precios "desde", extras, proceso,
   FAQ, form) viene de la versión anterior y del plan de negocio. El propio handoff pedía
   sumar paquetes y formulario.

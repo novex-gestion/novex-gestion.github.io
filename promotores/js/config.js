@@ -21,7 +21,7 @@ export const FIREBASE_CONFIG = {
 // Para sumar a alguien: crear el usuario en Firebase Auth, pegar su UID acá
 // Y agregarlo también a la función esEquipo() de firestore.rules.
 export const EQUIPO = {
-  '0H6nIW0JbzUI3igshz4HhLf66le2': { nombre: 'Iván' },
+  '0H6nIW0JbzUI3igshz4HhLf66le2': { nombre: 'Nico' },
   NUTgVP6JJAbvJg2ay47GtDgpxrk1: { nombre: 'Juan' },
   // admin@novex.bot — la usa Mati. Acceso completo a los postulantes,
   // nada de la agencia. Si algún día la usa otra persona, lo que haga va a

@@ -206,7 +206,7 @@ function formularioGasto(gasto, periodoVisible) {
 
   // El tipo de cambio se completa con el blue promedio DEL DÍA DEL GASTO: convertir
   // con el dólar de hoy algo de hace tres meses da un número que no existió nunca.
-  // Si Iván o Juan lo escriben a mano, manda lo que escribieron: pagar a otro tipo
+  // Si Nico o Juan lo escriben a mano, manda lo que escribieron: pagar a otro tipo
   // (tarjeta, cripto, un arreglo puntual) es normal y el sistema no discute.
   let tcTocadoAMano = !esAlta && !!g.tc;
 

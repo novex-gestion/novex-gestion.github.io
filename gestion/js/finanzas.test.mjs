@@ -8,7 +8,7 @@
 
 import { caja, cuentaSocio, neteo, ccCliente, vencidoCliente, ccTodos } from './finanzas.js';
 
-const IVAN = '0H6nIW0JbzUI3igshz4HhLf66le2';
+const NICO = '0H6nIW0JbzUI3igshz4HhLf66le2';
 const JUAN = 'NUTgVP6JJAbvJg2ay47GtDgpxrk1';
 const d = (s) => new Date(s + 'T12:00:00');
 let fallos = 0;
@@ -21,25 +21,25 @@ function ok(rotulo, real, esperado) {
 // ---------- CASO 1: sólo gastos, uno puso más que el otro ----------
 let c = {
   gastos: [
-    { id: 'g1', concepto: 'Claude', montoUsd: 800, pagadoPor: IVAN, fecha: d('2026-08-01'), periodo: '2026-08' },
+    { id: 'g1', concepto: 'Claude', montoUsd: 800, pagadoPor: NICO, fecha: d('2026-08-01'), periodo: '2026-08' },
     { id: 'g2', concepto: 'Fotos', montoUsd: 200, pagadoPor: JUAN, fecha: d('2026-08-02'), periodo: '2026-08' },
   ],
   pagos: [], movimientos: [], cargos: [], clientes: [],
 };
-console.log('CASO 1 — Iván puso 800, Juan 200');
-ok('saldo Iván', cuentaSocio(c, IVAN).saldo, 800);
+console.log('CASO 1 — Nico puso 800, Juan 200');
+ok('saldo Nico', cuentaSocio(c, NICO).saldo, 800);
 ok('saldo Juan', cuentaSocio(c, JUAN).saldo, 200);
 let n = neteo(c);
 ok('total puesto', n.total, 1000);
 ok('transferencia', n.transferencia.monto, 300);
-console.log(`  ${n.transferencia.de === JUAN ? 'OK  ' : 'FALLA'} paga Juan, cobra Iván`);
-if (n.transferencia.de !== JUAN || n.transferencia.a !== IVAN) fallos++;
+console.log(`  ${n.transferencia.de === JUAN ? 'OK  ' : 'FALLA'} paga Juan, cobra Nico`);
+if (n.transferencia.de !== JUAN || n.transferencia.a !== NICO) fallos++;
 ok('caja (nadie puso plata de la caja)', caja(c).saldo, 0);
 
 // ---------- CASO 2: se registra el neteo, quedan parejos ----------
-c.movimientos.push({ id: 'm1', tipo: 'neteo', montoUsd: 300, socio: JUAN, socioDestino: IVAN, fecha: d('2026-08-05'), periodo: '2026-08' });
+c.movimientos.push({ id: 'm1', tipo: 'neteo', montoUsd: 300, socio: JUAN, socioDestino: NICO, fecha: d('2026-08-05'), periodo: '2026-08' });
 console.log('CASO 2 — después de netear: los dos tienen que quedar en 500');
-ok('saldo Iván', cuentaSocio(c, IVAN).saldo, 500);
+ok('saldo Nico', cuentaSocio(c, NICO).saldo, 500);
 ok('saldo Juan', cuentaSocio(c, JUAN).saldo, 500);
 n = neteo(c);
 console.log(`  ${n.parejo ? 'OK  ' : 'FALLA'} quedan parejos y no pide otra transferencia`);
@@ -51,14 +51,14 @@ c = {
   gastos: [{ id: 'g1', concepto: 'Hosting', montoUsd: 300, pagadoPor: 'novex', fecha: d('2026-08-01'), periodo: '2026-08' }],
   pagos: [
     { id: 'p1', clienteId: 'c1', clienteNegocio: 'Bar', periodo: '2026-08', montoUsd: 1000, estado: 'cobrado', montoCobrado: 1000, recibidoPor: 'novex', fechaCobro: d('2026-08-03'), vence: d('2026-08-10') },
-    { id: 'p2', clienteId: 'c2', clienteNegocio: 'Peluquería', periodo: '2026-08', montoUsd: 500, estado: 'cobrado', montoCobrado: 500, recibidoPor: IVAN, fechaCobro: d('2026-08-04'), vence: d('2026-08-10') },
+    { id: 'p2', clienteId: 'c2', clienteNegocio: 'Peluquería', periodo: '2026-08', montoUsd: 500, estado: 'cobrado', montoCobrado: 500, recibidoPor: NICO, fechaCobro: d('2026-08-04'), vence: d('2026-08-10') },
   ],
   movimientos: [{ id: 'm1', tipo: 'retiro', montoUsd: 200, socio: JUAN, fecha: d('2026-08-06'), periodo: '2026-08' }],
   cargos: [], clientes: [],
 };
-console.log('CASO 3 — caja: entra 1000 a la caja, 500 lo cobra Iván, sale 300 de gasto y 200 de retiro');
+console.log('CASO 3 — caja: entra 1000 a la caja, 500 lo cobra Nico, sale 300 de gasto y 200 de retiro');
 ok('saldo de caja', caja(c).saldo, 500);            // 1000 − 300 − 200
-ok('Iván (se quedó un cobro)', cuentaSocio(c, IVAN).saldo, -500);
+ok('Nico (se quedó un cobro)', cuentaSocio(c, NICO).saldo, -500);
 ok('Juan (retiró)', cuentaSocio(c, JUAN).saldo, -200);
 
 // ---------- CASO 4: cuenta corriente de un cliente ----------

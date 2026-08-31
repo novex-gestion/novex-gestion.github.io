@@ -18,7 +18,7 @@ export const FIREBASE_CONFIG = {
 // `parte` es la participación en la sociedad: define cuánto le toca sostener a
 // cada uno y, por lo tanto, el neteo. Tiene que sumar 1 entre todos.
 export const SOCIOS = {
-  '0H6nIW0JbzUI3igshz4HhLf66le2': { nombre: 'Iván', parte: 0.5 },
+  '0H6nIW0JbzUI3igshz4HhLf66le2': { nombre: 'Nico', parte: 0.5 },
   NUTgVP6JJAbvJg2ay47GtDgpxrk1: { nombre: 'Juan', parte: 0.5 },
 };
 
