@@ -3,7 +3,7 @@
 import { collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { db } from './firebase.js';
 
-const COLECCIONES = ['leads', 'clientes', 'pagos', 'tareas', 'gastos', 'gastos_fijos', 'consultas', 'contenido'];
+const COLECCIONES = ['leads', 'clientes', 'pagos', 'tareas', 'gastos', 'gastos_fijos', 'consultas', 'contenido', 'movimientos', 'cargos'];
 
 export const cache = {
   leads: [],
@@ -14,6 +14,8 @@ export const cache = {
   gastos_fijos: [],
   consultas: [],
   contenido: [],
+  movimientos: [],
+  cargos: [],
   listo: Object.fromEntries(COLECCIONES.map((c) => [c, false])),
 };
 

@@ -619,3 +619,60 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ============================================================
+   CAJA · SOCIOS · CUENTA CORRIENTE
+   ============================================================ */
+
+/* colores sueltos, para montos dentro de filas y textos */
+.verde { color: var(--verde); }
+.rojo { color: var(--rojo); }
+.fila__monto.verde { color: var(--verde); }
+.fila__monto.rojo { color: var(--rojo); }
+.kpi__pie { font-family: var(--mono); font-size: 9px; color: var(--minimo); margin-top: 5px; letter-spacing: 0.08em; }
+
+/* conmutador Mes / Cuenta corriente */
+.conmuta { display: flex; border: 1px solid var(--borde); }
+.conmuta button {
+  background: none; border: 0; padding: 7px 13px; font-family: var(--mono);
+  font-size: 11px; color: var(--tenue-3); cursor: pointer; transition: 0.15s var(--suave);
+}
+.conmuta button:hover { color: var(--crema); }
+.conmuta button.activo { background: var(--naranja); color: var(--negro); font-weight: 600; }
+
+/* panel de liquidación entre socios */
+.panel--ok { border-color: var(--verde); }
+.panel--accion { border-color: var(--naranja); background: rgba(215, 101, 38, 0.06); }
+.panel__texto { font-size: 13.5px; color: var(--tenue); line-height: 1.6; margin: 8px 0 14px; }
+.panel--accion .boton { align-self: flex-start; }
+
+/* cuenta de cada socio */
+.bloque-socio { border: 1px solid var(--borde); background: var(--tarjeta); padding: 16px; margin-bottom: 16px; }
+.bloque-socio__cab {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--divisor); margin-bottom: 12px;
+}
+.bloque-socio__nombre { font-family: var(--display); font-size: 17px; font-weight: 700; }
+.bloque-socio__saldo { font-family: var(--mono); font-size: 16px; }
+.bloque-socio__cuenta { margin-bottom: 14px; }
+
+.renglon { display: flex; justify-content: space-between; gap: 14px; padding: 6px 0; font-size: 13.5px; }
+.renglon__rotulo { color: var(--tenue); }
+.renglon__valor { font-size: 12.5px; white-space: nowrap; }
+.renglon--total { border-top: 1px solid var(--divisor); margin-top: 6px; padding-top: 10px; font-weight: 700; }
+.renglon--total .renglon__rotulo { color: var(--crema); }
+.renglon--objetivo .renglon__rotulo,
+.renglon--dif .renglon__rotulo { color: var(--tenue-3); font-size: 12.5px; }
+.renglon--dif { border-top: 1px dashed var(--divisor); margin-top: 4px; padding-top: 8px; }
+
+/* resumen de cuenta corriente en la ficha del cliente */
+.cc-resumen { display: flex; gap: 18px; flex-wrap: wrap; margin: 4px 0 12px; }
+.cc-resumen div { display: flex; flex-direction: column; gap: 3px; }
+.cc-resumen span { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--tenue-2); }
+.cc-resumen b { font-family: var(--mono); font-size: 15px; }
+
+/* el mensaje de la liquidación: es la frase que resuelve el módulo, va grande */
+.panel__destacado {
+  font-family: var(--display); font-size: 17px; font-weight: 700;
+  line-height: 1.35; letter-spacing: -0.01em;
+}

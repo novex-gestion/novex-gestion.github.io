@@ -13,6 +13,8 @@ import { montarClienteDetalle } from './vistas/cliente-detalle.js';
 import { montarCobranzas } from './vistas/cobranzas.js';
 import { montarTareas } from './vistas/tareas.js';
 import { montarGastos } from './vistas/gastos.js';
+import { montarCaja } from './vistas/caja.js';
+import { montarSocios } from './vistas/socios.js';
 import { montarContenido } from './vistas/contenido.js';
 import { iniciarBusqueda } from './busqueda.js';
 
@@ -122,6 +124,8 @@ const RUTAS = {
   cobranzas: montarCobranzas,
   tareas: montarTareas,
   gastos: montarGastos,
+  caja: montarCaja,
+  socios: montarSocios,
   blog: montarContenido,
 };
 

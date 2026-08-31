@@ -5,8 +5,10 @@ import {
 import { db, auth } from '../firebase.js';
 import { TIPOS_INTERACCION, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js';
 import { cache, alCambiar } from '../datos.js';
+import { ccCliente, vencidoCliente, cobradoDe } from '../finanzas.js';
 import { esc, fmtUsd, fmtFecha, aFecha, nombrePeriodo, modal, confirmar, toast, selectHtml, linkWa } from '../ui.js';
 import { formularioCliente } from './clientes.js';
+import { formularioCargo } from './cobranzas.js';
 
 const NOMBRE_ESTADO = { activo: 'Activo', pausado: 'Pausado', baja: 'Baja' };
 const SELLO_ESTADO = { activo: 'sello--verde', pausado: 'sello--naranja', baja: 'sello--apagado' };
@@ -34,9 +36,8 @@ export function montarClienteDetalle(raiz, id) {
       return;
     }
 
-    const pagos = cache.pagos
-      .filter((p) => p.clienteId === id)
-      .sort((a, b) => (b.periodo || '').localeCompare(a.periodo || ''));
+    const cc = ccCliente(cache, id);
+    const vencido = vencidoCliente(cache, id);
 
     const telLimpio = (c.telefono || '').replace(/\D/g, '');
     const ig = (c.instagram || '').replace(/^@/, '');
@@ -71,10 +72,13 @@ export function montarClienteDetalle(raiz, id) {
           ${c.notasGenerales ? `<p class="modal__nota" style="margin-top:12px">// ${esc(c.notasGenerales)}</p>` : ''}
           ${telLimpio ? (() => {
             const base = { contacto: c.contacto || '', negocio: c.negocio || '' };
-            const pendiente = pagos.find((p) => p.estado === 'pendiente');
+            const pendiente = cache.pagos
+              .filter((p) => p.clienteId === id && (Number(p.montoUsd) || 0) - cobradoDe(p) > 0.004)
+              .sort((a, b) => (a.periodo || '').localeCompare(b.periodo || ''))[0];
             const waSeg = linkWa(c.telefono, PLANTILLAS_WA.seguimientoCliente, base);
             const waCobro = pendiente ? linkWa(c.telefono, PLANTILLAS_WA.cobro, {
-              ...base, mes: nombrePeriodo(pendiente.periodo), monto: fmtUsd(pendiente.montoUsd),
+              ...base, mes: nombrePeriodo(pendiente.periodo),
+              monto: fmtUsd((Number(pendiente.montoUsd) || 0) - cobradoDe(pendiente)),
             }) : null;
             const waBienv = linkWa(c.telefono, PLANTILLAS_WA.bienvenida, base);
             return `
@@ -101,25 +105,26 @@ export function montarClienteDetalle(raiz, id) {
         </section>
 
         <section class="panel">
-          <h2 class="panel__titulo">Pagos</h2>
+          <h2 class="panel__titulo">Cuenta corriente
+            <button type="button" class="boton boton--chico" id="btn-cargo-cliente">+ Cargo</button>
+          </h2>
+          <div class="cc-resumen">
+            <div><span class="mono">Facturado</span><b>${fmtUsd(cc.devengado)}</b></div>
+            <div><span class="mono">Cobrado</span><b>${fmtUsd(cc.cobrado)}</b></div>
+            <div><span class="mono">Saldo</span><b class="${cc.saldo > 0.004 ? 'rojo' : cc.saldo < -0.004 ? 'verde' : ''}">${fmtUsd(cc.saldo)}</b></div>
+          </div>
+          ${vencido > 0.004 ? `<p class="modal__nota rojo">// Vencido: ${fmtUsd(vencido)}</p>` : ''}
           <div class="filas">
-            ${pagos.map((p) => {
-              const vencido = p.estado === 'pendiente' && aFecha(p.vence) && aFecha(p.vence) < new Date();
-              return `
-                <div class="fila">
+            ${cc.filas.slice().reverse().map((f) => `
+                <div class="fila" ${f.tipo === 'cargo' || f.tipo === 'credito' ? `data-cargo="${esc(f.ref)}" style="cursor:pointer"` : ''}>
                   <div class="fila__principal">
-                    <p class="fila__nombre" style="font-size:14px; text-transform:capitalize">${esc(nombrePeriodo(p.periodo))}</p>
-                    <p class="fila__detalle">${p.estado === 'cobrado'
-                      ? `cobrado ${esc(fmtFecha(p.fechaCobro))}${p.medioPago ? ' · ' + esc(p.medioPago) : ''}`
-                      : `vence ${esc(fmtFecha(p.vence))}`}</p>
+                    <p class="fila__nombre" style="font-size:14px">${esc(f.concepto)}</p>
+                    <p class="fila__detalle">${esc(fmtFecha(f.fecha))} · saldo ${fmtUsd(f.saldo)}</p>
                   </div>
                   <div class="fila__lado">
-                    <span class="sello ${p.estado === 'cobrado' ? 'sello--verde' : vencido ? 'sello--rojo' : 'sello--naranja'}">
-                      ${p.estado === 'cobrado' ? 'Cobrado' : vencido ? 'Vencido' : 'Pendiente'}</span>
-                    <span class="fila__monto">${fmtUsd(p.montoUsd)}</span>
+                    <span class="fila__monto ${f.haber ? 'verde' : ''}">${f.haber ? '−' : '+'} ${fmtUsd(f.haber || f.debe)}</span>
                   </div>
-                </div>`;
-            }).join('') || '<p class="modal__nota">// Sin cuotas generadas. Se generan desde el módulo Cobros.</p>'}
+                </div>`).join('') || '<p class="modal__nota">// Sin movimientos. Las cuotas se generan desde Cobros; los extras con "+ Cargo".</p>'}
           </div>
         </section>
 
@@ -130,6 +135,17 @@ export function montarClienteDetalle(raiz, id) {
       </div>`;
 
     raiz.querySelector('#btn-editar').addEventListener('click', () => formularioCliente(c));
+
+    raiz.querySelector('#btn-cargo-cliente').addEventListener('click', (e) => {
+      e.stopPropagation();
+      formularioCargo(null, id);
+    });
+    raiz.querySelectorAll('[data-cargo]').forEach((el) =>
+      el.addEventListener('click', () => {
+        const cargo = cache.cargos.find((x) => x.id === el.dataset.cargo);
+        if (cargo) formularioCargo(cargo, id);
+      })
+    );
 
     raiz.querySelector('#btn-interaccion').addEventListener('click', () => {
       const m = modal('Registrar seguimiento', `
@@ -175,7 +191,7 @@ export function montarClienteDetalle(raiz, id) {
 
   pintar();
   const pararCache = alCambiar((col) => {
-    if (col === 'clientes' || col === 'pagos') pintar();
+    if (col === 'clientes' || col === 'pagos' || col === 'cargos') pintar();
   });
 
   return () => { pararCache(); pararInteracciones(); };

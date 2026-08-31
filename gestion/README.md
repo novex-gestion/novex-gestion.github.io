@@ -13,20 +13,50 @@ CRM interno de NOVEX. Vive en `https://somosnovex.com/gestion/` (link discreto
    pública validada por reglas) → un click las convierte en lead.
 3. **Clientes** — padrón con ficha 360°: datos, seguimiento (interacciones), pagos y
    plantillas de WhatsApp (seguimiento / cobro / bienvenida).
-4. **Cobros** — cuotas mensuales por cliente (ID `clienteId_YYYY-MM`, regenerar no
-   duplica), tablero recurrente/cobrado/pendiente/vencido, recordatorio por WhatsApp.
+4. **Cobros** — dos modos. *Mes*: cuotas mensuales por cliente (ID `clienteId_YYYY-MM`,
+   regenerar no duplica), con cobros **parciales** y registro de dónde entró la plata
+   (caja NOVEX o el bolsillo de un socio). *Cuenta corriente*: saldo acumulado por
+   cliente = cuotas + cargos sueltos − cobrado. Los cargos (setup, trabajo extra,
+   pauta) y los créditos (bonificaciones) se cargan con "+ Cargo".
 5. **Gastos** — puntuales y fijos recurrentes (ID `fijoId_YYYY-MM`), USD/ARS con tipo
-   de cambio, categoría, cliente opcional (margen) y quién lo pagó (saldo entre socios).
-6. **Tareas** — pendientes por socio y por cliente, prioridad y vencimiento.
+   de cambio, categoría, cliente opcional (margen) y quién lo pagó.
+6. **Caja** — la plata de la sociedad. Los gastos pagados por la cuenta NOVEX y los
+   cobros que entraron a la caja aparecen **solos**: no se cargan dos veces. A mano
+   sólo se registran aportes, retiros, reintegros y ajustes.
+7. **Socios** — el neteo. Cada socio tiene una cuenta con la sociedad: sube cuando pone
+   (gastos de su bolsillo, aportes) y baja cuando saca (retiros, cobros que se quedó).
+   La vista dice **quién le tiene que transferir cuánto a quién** para que el esfuerzo
+   quede parejo según la participación, y registra esa transferencia de un click.
+8. **Tareas** — pendientes por socio y por cliente, prioridad y vencimiento.
 
 Extra: búsqueda global (Ctrl+K o ⌕ del tope) sobre leads/clientes/tareas/gastos.
+
+## La plata: una sola fuente
+
+`js/finanzas.js` es el motor: **todas** las reglas de la plata viven ahí y las vistas
+sólo leen. Así caja, socios y cuenta corriente no pueden contradecirse. La tabla de
+asientos está documentada en el encabezado del archivo.
+
+Dos decisiones que conviene no olvidar:
+
+- **El neteo lo paga quien puso de menos**, y eso *sube* su cuenta (puso más plata).
+  Al revés, emparejar agrandaría la diferencia y el módulo pediría transferencias sin
+  fin. Hay un test que lo cubre.
+- **Lo vencido de un cliente nunca supera su saldo**: si se le bonificó algo, no se le
+  puede reclamar.
+
+Participación de los socios: `SOCIOS[uid].parte` en `js/config.js` (hoy 50/50). Cambiar
+ese número recalcula todo el neteo; si las partes no suman 1 se normalizan.
+
+Test: `node js/finanzas.test.mjs` (no necesita instalar nada ni tocar Firebase).
 
 ## Seguridad
 
 - El repo es público: la `firebaseConfig` de `js/config.js` es pública **por diseño**;
   la seguridad real son Firebase Auth + las Security Rules (`firestore.rules`, la
   versión vigente se pega en la consola) que restringen lectura/escritura a los UIDs
-  de los dos socios.
+  de los dos socios. Las colecciones nuevas (`movimientos`, `cargos`) quedan cubiertas
+  por la regla catch-all de socios: no hubo que tocar las reglas.
 - Registro de usuarios deshabilitado en la consola (solo existen las 2 cuentas).
 - `noindex` + sin robots.txt (un Disallow anunciaría la ruta).
 
