@@ -1,0 +1,10 @@
+# ── Datos de negocios reales: NUNCA al repo ──────────────────────────────
+# El sistema de /sistema/ es un cascarón: se publica el motor, no los datos.
+# El paquete de un cliente se carga arrastrando el archivo, y vive fuera de acá
+# (en 16-novex/sistema-paquetes/, que no es parte del repositorio).
+# Sólo se publican los negocios de ejemplo, que son inventados.
+sistema/datos/*.json
+!sistema/datos/muestra-*.json
+
+# Temporales de prueba (páginas que montan vistas con datos falsos)
+**/_prueba.html

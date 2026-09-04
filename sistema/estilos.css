@@ -58,7 +58,9 @@ a { color: inherit; }
   font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: .04em;
   text-decoration: none; display: flex; align-items: baseline; gap: 9px;
 }
-.barra__marca em { color: var(--naranja); font-style: normal; }
+/* fijo, no var(--naranja): esa variable la pisa el acento del negocio cargado y la
+   marca de NOVEX terminaba cambiando de color según el cliente que se mira. */
+.barra__marca em { color: #D76526; font-style: normal; }
 .barra__marca span { font-size: 11px; font-weight: 400; color: var(--tenue-2); letter-spacing: .1em; }
 .barra__sep { width: 1px; height: 22px; background: var(--borde); }
 .barra__espacio { flex: 1; }
@@ -212,6 +214,10 @@ tbody tr:hover { background: rgba(255,255,255,.022); }
 @media (max-width: 700px) { .panel__cerrar { right: 16px; top: auto; bottom: 16px; } }
 
 /* zona de arrastre */
+/* El [hidden] va primero y con !important: `display:grid` pisa al atributo hidden,
+   y esta capa ocupa toda la pantalla. Sin esto tapa la página entera y no se puede
+   hacer clic en nada, aunque no se vea. */
+.soltar[hidden] { display: none !important; }
 .soltar { position: fixed; inset: 0; z-index: 120; background: rgba(11,11,12,.9); display: grid; place-items: center; }
 .soltar div { border: 2px dashed var(--naranja); padding: 60px 80px; text-align: center; }
 .soltar b { display: block; font-family: var(--display); font-size: 20px; margin-bottom: 6px; }

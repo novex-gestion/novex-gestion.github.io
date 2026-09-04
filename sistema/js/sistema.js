@@ -15,6 +15,7 @@ const dias = (a, b) => (a && b ? Math.round((b - a) / 86400000) : null);
 const suma = (a, f) => a.reduce((t, x) => t + (+f(x) || 0), 0);
 const art = g => (g === "f" ? "las" : "los");
 const tod = g => (g === "f" ? "todas" : "todos");
+const plural = (n, uno, muchos) => `${entero(n)} ${n === 1 ? uno : muchos}`;
 
 let MONEDA = "ARS";
 const nf = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 });
@@ -163,7 +164,7 @@ const Motor = {
     }
     if (st.muerto.length) {
       const val = suma(st.muerto, x => x.valor);
-      out.push({ nivel: "alerta", t: `${st.muerto.length} artículos sin vender hace más de un año`,
+      out.push({ nivel: "alerta", t: `${plural(st.muerto.length, "artículo", "artículos")} sin vender hace más de un año`,
         s: `${entero(suma(st.muerto, x => x.cant))} unidades${val ? ", " + money(val) + " valorizados" : ""}. Es plata quieta, no surtido.` });
     }
 
@@ -177,7 +178,7 @@ const Motor = {
     }
     const viejo = cob.filas.filter(f => f.mas > 0);
     if (viejo.length) out.push({ nivel: "alerta", t: `${money(suma(viejo, f => f.mas))} con más de 90 días`,
-      s: `En ${viejo.length} ${viejo.length === 1 ? "cuenta" : "cuentas"}. Cuanto más viejo, menos se cobra.` });
+      s: `En ${plural(viejo.length, "cuenta", "cuentas")}. Cuanto más viejo, menos se cobra.` });
 
     const cxp = this.cxp(d);
     if (cxp.totalArrastre > 0) out.push({ nivel: "alerta", t: `${money(cxp.totalArrastre)} de saldos viejos sin conciliar`,
@@ -187,7 +188,7 @@ const Motor = {
     const dormidos = cli.filter(c => c.dias_sin_comprar > 180 && c.facturado > 0);
     if (dormidos.length && cli.length) {
       const top = [...dormidos].sort((a, b) => b.facturado - a.facturado).slice(0, 5);
-      out.push({ nivel: "alerta", t: `${dormidos.length} clientes sin comprar hace más de 6 meses`,
+      out.push({ nivel: "alerta", t: `${plural(dormidos.length, v.cliente.toLowerCase() + " sin comprar", v.clientes.toLowerCase() + " sin comprar")} hace más de 6 meses`,
         s: `Facturaron ${money(suma(dormidos, c => c.facturado))} históricos. Los cinco más grandes: ${top.map(c => c.nombre).join(", ")}.` });
     }
     if (!out.length) out.push({ nivel: "ok", t: "Sin señales críticas", s: "Ninguna de las reglas configuradas se disparó con los datos cargados." });
@@ -607,8 +608,11 @@ App.pintar = function () {
   document.getElementById("titulo-vista").textContent = titulos[base] || base;
   document.getElementById("miga").textContent = arg ? decodeURIComponent(arg) : "";
 
+  // .call(Vistas, ...) y no fn(...): las vistas se apoyan entre ellas con `this`
+  // (columnas compartidas), y llamarlas sueltas lo pierde y rompe la tabla entera.
   const fn = Vistas[base];
-  document.getElementById("vista").innerHTML = fn ? fn(pq, arg ? decodeURIComponent(arg) : null)
+  document.getElementById("vista").innerHTML = fn
+    ? fn.call(Vistas, pq, arg ? decodeURIComponent(arg) : null)
     : `<div class="vacio">Vista no disponible.</div>`;
 };
 
