@@ -58,11 +58,29 @@ export function montarGastos(raiz) {
       porPagador[g.pagadoPor] = (porPagador[g.pagadoPor] || 0) + (Number(g.montoUsd) || 0);
     }
     const socios = Object.keys(SOCIOS);
+
+    // Un gasto atado a un cliente puede ser costo nuestro (atenderlo) o plata
+    // adelantada que vuelve. Lo que los separa es si se refacturo.
+    const refacturado = delMes
+      .filter((g) => g.cargoId)
+      .reduce((s, g) => s + (Number(g.montoUsd) || 0), 0);
+    const pendientes = delMes.filter((g) => g.clienteId && !g.cargoId);
+    const sinRefacturar = pendientes.reduce((s, g) => s + (Number(g.montoUsd) || 0), 0);
+    const sinRefacturarN = pendientes.length;
+
     raiz.querySelector('#gas-kpis').innerHTML = `
       <div class="kpi"><p class="kpi__nombre">Total ${esc(periodo)}</p><p class="kpi__valor rojo">${fmtUsd(total)}</p></div>
       <div class="kpi"><p class="kpi__nombre">Puso ${esc(nombrePagador(socios[0]))}</p><p class="kpi__valor">${fmtUsd(porPagador[socios[0]] || 0)}</p></div>
       <div class="kpi"><p class="kpi__nombre">Puso ${esc(nombrePagador(socios[1]))}</p><p class="kpi__valor">${fmtUsd(porPagador[socios[1]] || 0)}</p></div>
-      <div class="kpi"><p class="kpi__nombre">Cuenta NOVEX</p><p class="kpi__valor">${fmtUsd(porPagador.novex || 0)}</p></div>`;
+      <div class="kpi"><p class="kpi__nombre">Cuenta NOVEX</p><p class="kpi__valor">${fmtUsd(porPagador.novex || 0)}</p></div>
+      ${refacturado ? `<div class="kpi">
+        <p class="kpi__nombre">Se le refactura al cliente</p>
+        <p class="kpi__valor verde">${fmtUsd(refacturado)}</p>
+        <p class="kpi__pie">no es costo nuestro</p></div>` : ''}
+      ${sinRefacturar ? `<div class="kpi">
+        <p class="kpi__nombre">Sin refacturar</p>
+        <p class="kpi__valor naranja">${fmtUsd(sinRefacturar)}</p>
+        <p class="kpi__pie">${sinRefacturarN} ${sinRefacturarN === 1 ? 'gasto puesto a un cliente' : 'gastos puestos a clientes'}</p></div>` : ''}`;
 
     raiz.querySelector('#gas-nombre').textContent = nombrePeriodo(periodo).toUpperCase();
 
@@ -96,6 +114,9 @@ export function montarGastos(raiz) {
         <div class="fila__lado">
           <span class="fila__monto">${fmtUsd(g.montoUsd)}</span>
           ${g.moneda === 'ARS' ? `<span class="sello sello--apagado">ARS ${Number(g.montoOriginal || 0).toLocaleString('es-AR')}</span>` : ''}
+          ${g.cargoId
+            ? '<span class="sello sello--verde">↩ refacturado</span>'
+            : (g.clienteId ? '<span class="sello sello--naranja">sin refacturar</span>' : '')}
         </div>
       </article>`).join('') ||
       (cache.listo.gastos
@@ -244,6 +265,18 @@ function formularioGasto(gasto, periodoVisible) {
     });
   }
 
+  // Sin cliente no hay a quien refacturarle: el interruptor aparece solo cuando
+  // se elige uno.
+  const selCliente = m.el.querySelector('[name="cliente"]');
+  const cajaRefact = m.el.querySelector('#g-refact-caja');
+  if (selCliente && cajaRefact) {
+    selCliente.addEventListener('change', () => {
+      const hay = !!selCliente.value;
+      cajaRefact.classList.toggle('refact--oculto', !hay);
+      if (!hay) cajaRefact.querySelector('[name="refacturar"]').checked = false;
+    });
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = e.target;
@@ -269,13 +302,36 @@ function formularioGasto(gasto, periodoVisible) {
       clienteNegocio: cliente ? cliente.negocio : null,
       pagadoPor: f.pagador.value,
     };
+    // Si se refactura, el cargo va a la cuenta corriente del cliente por el
+    // mismo importe. Queda enlazado al gasto (cargoId) para no duplicarlo si
+    // se edita de nuevo, y para poder mostrar el estado en la lista.
+    const refacturar = !!(f.refacturar && f.refacturar.checked) && !!cliente;
+    datos.refacturar = refacturar;
+
     try {
+      let cargoId = g.cargoId || null;
+      if (refacturar && !cargoId) {
+        const ref = await addDoc(collection(db, 'cargos'), {
+          clienteId: cliente.id,
+          clienteNegocio: cliente.negocio || '',
+          tipo: 'cargo',
+          montoUsd: datos.montoUsd,
+          fecha: datos.fecha,
+          periodo: datos.periodo,
+          concepto: datos.concepto,
+          origen: 'gasto',
+          ...stamp(true),
+        });
+        cargoId = ref.id;
+      }
+      datos.cargoId = cargoId;
+
       if (esAlta) {
         await addDoc(collection(db, 'gastos'), { ...datos, fijoId: null, ...stamp(true) });
-        toast('Gasto cargado');
+        toast(refacturar ? `Gasto cargado y refacturado a ${cliente.negocio}` : 'Gasto cargado');
       } else {
         await updateDoc(doc(db, 'gastos', g.id), { ...datos, ...stamp() });
-        toast('Gasto actualizado');
+        toast(refacturar && !g.cargoId ? `Refacturado a ${cliente.negocio}` : 'Gasto actualizado');
       }
       m.cerrar();
     } catch (err) { console.error(err); toast('No se pudo guardar', true); }

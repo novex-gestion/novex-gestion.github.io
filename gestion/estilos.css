@@ -716,3 +716,35 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   padding: 2px 5px; flex: none;
 }
 .adjunto__quitar:hover { color: var(--rojo); }
+
+/* ---- Refacturar un gasto ----
+   Marca la diferencia entre un costo propio y plata adelantada que vuelve.
+   Se muestra solo cuando el gasto tiene un cliente asignado. */
+.refact {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-top: 4px;
+  border: 1px solid var(--borde);
+  background: var(--tarjeta-2);
+  cursor: pointer;
+  transition: border-color 0.2s var(--suave);
+}
+
+.refact:hover { border-color: var(--tenue-3); }
+.refact--oculto { display: none; }
+
+.refact input { margin-top: 3px; flex-shrink: 0; cursor: pointer; }
+.refact input:disabled { cursor: default; }
+.refact input:disabled + span { opacity: 0.65; }
+
+.refact b { font-size: 13px; font-weight: 600; display: block; }
+
+.refact__pie {
+  display: block;
+  font-size: 11.5px;
+  color: var(--tenue-2);
+  line-height: 1.45;
+  margin-top: 3px;
+}

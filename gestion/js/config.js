@@ -109,6 +109,9 @@ export const CONCEPTOS_CARGO = [
   { id: 'extra',      nombre: 'Trabajo extra' },
   { id: 'pauta',      nombre: 'Pauta facturada al cliente' },
   { id: 'produccion', nombre: 'Producción (fotos, video)' },
+  // Gasto que pagamos nosotros y le refacturamos al cliente (hosting, VPS,
+  // una API). Lo genera solo la vista de Gastos al marcar "se lo refacturo".
+  { id: 'reintegro',  nombre: 'Gasto a reintegrar' },
   { id: 'otro',       nombre: 'Otro' },
 ];
 
