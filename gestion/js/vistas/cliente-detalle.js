@@ -2,13 +2,14 @@
 import {
   collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, auth } from '../firebase.js?v=10';
-import { TIPOS_INTERACCION, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js?v=10';
-import { cache, alCambiar } from '../datos.js?v=10';
-import { ccCliente, vencidoCliente, cobradoDe } from '../finanzas.js?v=10';
-import { esc, fmtUsd, fmtFecha, aFecha, nombrePeriodo, modal, confirmar, toast, selectHtml, linkWa } from '../ui.js?v=10';
-import { formularioCliente } from './clientes.js?v=10';
-import { formularioCargo } from './cobranzas.js?v=10';
+import { db, auth } from '../firebase.js?v=11';
+import { TIPOS_INTERACCION, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js?v=11';
+import { cache, alCambiar } from '../datos.js?v=11';
+import { ccCliente, vencidoCliente, cobradoDe } from '../finanzas.js?v=11';
+import { esc, fmtUsd, fmtFecha, aFecha, nombrePeriodo, modal, confirmar, toast, selectHtml, linkWa } from '../ui.js?v=11';
+import { gastosDe, totalDe, textoWa, abrirImprimible } from '../detalle-gastos.js?v=11';
+import { formularioCliente } from './clientes.js?v=11';
+import { formularioCargo } from './cobranzas.js?v=11';
 
 const NOMBRE_ESTADO = { activo: 'Activo', pausado: 'Pausado', baja: 'Baja' };
 const SELLO_ESTADO = { activo: 'sello--verde', pausado: 'sello--naranja', baja: 'sello--apagado' };
@@ -38,6 +39,10 @@ export function montarClienteDetalle(raiz, id) {
 
     const cc = ccCliente(cache, id);
     const vencido = vencidoCliente(cache, id);
+    // Lo que adelantamos por el cliente y ya se le refacturo: es lo que se le
+    // cobra aparte de las cuotas.
+    const gastosRef = gastosDe(cache, id);
+    const totalRef = totalDe(gastosRef);
 
     const telLimpio = (c.telefono || '').replace(/\D/g, '');
     const ig = (c.instagram || '').replace(/^@/, '');
@@ -129,12 +134,58 @@ export function montarClienteDetalle(raiz, id) {
         </section>
 
         <section class="panel">
+          <h2 class="panel__titulo">Gastos a reintegrar
+            ${gastosRef.length ? `<span class="panel__dato">${fmtUsd(totalRef)}</span>` : ''}
+          </h2>
+          ${gastosRef.length ? `
+            <div class="filas">
+              ${gastosRef.slice().reverse().map((g) => `
+                <div class="fila">
+                  <div class="fila__principal">
+                    <p class="fila__nombre" style="font-size:14px">${esc(g.concepto)}</p>
+                    <p class="fila__detalle">${esc(fmtFecha(g.fecha))}${
+                      g.moneda === 'ARS' && g.montoOriginal
+                        ? ' · ARS ' + Number(g.montoOriginal).toLocaleString('es-AR') : ''}</p>
+                  </div>
+                  <div class="fila__lado"><span class="fila__monto">${fmtUsd(g.montoUsd)}</span></div>
+                </div>`).join('')}
+            </div>
+            <div class="detalle-acciones">
+              <button type="button" class="boton boton--chico" id="btn-det-wa">Mandar por WhatsApp</button>
+              <button type="button" class="boton boton--chico" id="btn-det-pdf">Imprimir / PDF</button>
+            </div>`
+            : `<p class="modal__nota">// Nada para reintegrar. Los gastos que pagás por este cliente
+                 aparecen acá cuando los marcás como "se lo refacturo" al cargarlos.</p>`}
+        </section>
+
+        <section class="panel">
           <h2 class="panel__titulo">Zona de riesgo</h2>
           <button type="button" class="boton boton--chico boton--peligro" id="btn-borrar">Borrar cliente</button>
         </section>
       </div>`;
 
     raiz.querySelector('#btn-editar').addEventListener('click', () => formularioCliente(c));
+
+    const btnWa = raiz.querySelector('#btn-det-wa');
+    if (btnWa) btnWa.addEventListener('click', () => {
+      const texto = textoWa(c, gastosRef);
+      // Si tiene telefono, se abre el chat con el mensaje puesto. Si no, al
+      // menos queda copiado para pegarlo donde sea.
+      if (c.telefono) {
+        window.open(linkWa(c.telefono, texto), '_blank');
+      } else {
+        navigator.clipboard.writeText(texto)
+          .then(() => toast('Sin teléfono cargado: copié el detalle al portapapeles'))
+          .catch(() => toast('No pude copiarlo', true));
+      }
+    });
+
+    const btnPdf = raiz.querySelector('#btn-det-pdf');
+    if (btnPdf) btnPdf.addEventListener('click', () => {
+      if (!abrirImprimible(c, gastosRef)) {
+        toast('El navegador bloqueó la pestaña. Permitila y probá de nuevo', true);
+      }
+    });
 
     raiz.querySelector('#btn-cargo-cliente').addEventListener('click', (e) => {
       e.stopPropagation();

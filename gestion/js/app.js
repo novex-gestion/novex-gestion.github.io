@@ -2,22 +2,22 @@
 import {
   onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { auth, configLista } from './firebase.js?v=10';
-import { SOCIOS, nombreSocio } from './config.js?v=10';
-import { conectarDatos, desconectarDatos } from './datos.js?v=10';
-import { toast } from './ui.js?v=10';
-import { montarInicio } from './vistas/inicio.js?v=10';
-import { montarPipeline } from './vistas/pipeline.js?v=10';
-import { montarClientes } from './vistas/clientes.js?v=10';
-import { montarClienteDetalle } from './vistas/cliente-detalle.js?v=10';
-import { montarCobranzas } from './vistas/cobranzas.js?v=10';
-import { montarTareas } from './vistas/tareas.js?v=10';
-import { montarGastos } from './vistas/gastos.js?v=10';
-import { montarCaja } from './vistas/caja.js?v=10';
-import { montarSocios } from './vistas/socios.js?v=10';
-import { montarContenido } from './vistas/contenido.js?v=10';
-import { iniciarBusqueda } from './busqueda.js?v=10';
-import { blueHoy, fmtPesos } from './dolar.js?v=10';
+import { auth, configLista } from './firebase.js?v=11';
+import { SOCIOS, nombreSocio } from './config.js?v=11';
+import { conectarDatos, desconectarDatos } from './datos.js?v=11';
+import { toast } from './ui.js?v=11';
+import { montarInicio } from './vistas/inicio.js?v=11';
+import { montarPipeline } from './vistas/pipeline.js?v=11';
+import { montarClientes } from './vistas/clientes.js?v=11';
+import { montarClienteDetalle } from './vistas/cliente-detalle.js?v=11';
+import { montarCobranzas } from './vistas/cobranzas.js?v=11';
+import { montarTareas } from './vistas/tareas.js?v=11';
+import { montarGastos } from './vistas/gastos.js?v=11';
+import { montarCaja } from './vistas/caja.js?v=11';
+import { montarSocios } from './vistas/socios.js?v=11';
+import { montarContenido } from './vistas/contenido.js?v=11';
+import { iniciarBusqueda } from './busqueda.js?v=11';
+import { blueHoy, fmtPesos } from './dolar.js?v=11';
 
 const pantallaLogin = document.getElementById('pantalla-login');
 const pantallaApp = document.getElementById('pantalla-app');

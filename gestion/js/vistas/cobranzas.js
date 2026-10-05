@@ -8,14 +8,14 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc, writeBatch,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, stamp } from '../firebase.js?v=10';
-import { PLANTILLAS_WA, MEDIOS_PAGO, CONCEPTOS_CARGO, opcionesCuenta, nombrePagador } from '../config.js?v=10';
-import { cache, alCambiar } from '../datos.js?v=10';
-import { ccTodos, ccCliente, cobradoDe, recibidoPor } from '../finanzas.js?v=10';
+import { db, stamp } from '../firebase.js?v=11';
+import { PLANTILLAS_WA, MEDIOS_PAGO, CONCEPTOS_CARGO, opcionesCuenta, nombrePagador } from '../config.js?v=11';
+import { cache, alCambiar } from '../datos.js?v=11';
+import { ccTodos, ccCliente, cobradoDe, recibidoPor } from '../finanzas.js?v=11';
 import {
   esc, fmtUsd, fmtFecha, fmtFechaCorta, aFecha, aInputFecha, fechaDeInput,
   periodoDe, nombrePeriodo, sumarMeses, modal, confirmar, toast, linkWa, selectHtml,
-} from '../ui.js?v=10';
+} from '../ui.js?v=11';
 
 export function montarCobranzas(raiz) {
   let periodo = periodoDe();

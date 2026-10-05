@@ -1,6 +1,6 @@
 // 01 · INICIO — qué atender hoy + P&L del mes (cobrado − gastos).
-import { cache, alCambiar } from '../datos.js?v=10';
-import { esc, fmtUsd, aFecha, periodoDe, nombrePeriodo, sumarMeses } from '../ui.js?v=10';
+import { cache, alCambiar } from '../datos.js?v=11';
+import { esc, fmtUsd, aFecha, periodoDe, nombrePeriodo, sumarMeses } from '../ui.js?v=11';
 
 const DIA_MS = 86400000;
 

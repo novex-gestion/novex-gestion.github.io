@@ -748,3 +748,18 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   line-height: 1.45;
   margin-top: 3px;
 }
+
+/* ---- Detalle de gastos para cobrarle al cliente ---- */
+.panel__dato {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--crema);
+  font-weight: 600;
+}
+
+.detalle-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}

@@ -4,11 +4,11 @@
 // de su bolsillo, aportes) y baja cuando saca (retiros, cobros que se quedó).
 // El neteo dice quién tiene que transferirle a quién para quedar iguales
 // según la participación de cada uno.
-import { SOCIOS, nombreSocio } from '../config.js?v=10';
-import { cache, alCambiar } from '../datos.js?v=10';
-import { neteo, cuentaSocio, rotuloTipo } from '../finanzas.js?v=10';
-import { esc, fmtUsd, fmtFechaCorta, toast } from '../ui.js?v=10';
-import { formularioMovimiento } from './caja.js?v=10';
+import { SOCIOS, nombreSocio } from '../config.js?v=11';
+import { cache, alCambiar } from '../datos.js?v=11';
+import { neteo, cuentaSocio, rotuloTipo } from '../finanzas.js?v=11';
+import { esc, fmtUsd, fmtFechaCorta, toast } from '../ui.js?v=11';
+import { formularioMovimiento } from './caja.js?v=11';
 
 export function montarSocios(raiz) {
   raiz.innerHTML = `

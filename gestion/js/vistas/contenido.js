@@ -4,14 +4,14 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc, arrayUnion, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, auth, stamp } from '../firebase.js?v=10';
-import { ESTADOS_CONTENIDO, RUBROS_CONTENIDO, nombreSocio } from '../config.js?v=10';
-import { cache, alCambiar } from '../datos.js?v=10';
-import { montarAdjuntos, selloAdjuntos } from '../adjuntos.js?v=10';
+import { db, auth, stamp } from '../firebase.js?v=11';
+import { ESTADOS_CONTENIDO, RUBROS_CONTENIDO, nombreSocio } from '../config.js?v=11';
+import { cache, alCambiar } from '../datos.js?v=11';
+import { montarAdjuntos, selloAdjuntos } from '../adjuntos.js?v=11';
 import {
   esc, fmtFecha, fmtFechaCorta, haceDias, aFecha, aInputFecha, fechaDeInput,
   modal, confirmar, toast, selectHtml, normalizar,
-} from '../ui.js?v=10';
+} from '../ui.js?v=11';
 
 const ENCARGADOS = [
   { id: 'claude', nombre: 'Claude (redacta)' },
