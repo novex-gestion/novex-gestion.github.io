@@ -1,7 +1,7 @@
 // Capa de datos: una sola suscripción en vivo por colección,
 // caché en memoria y aviso a las vistas cuando algo cambia.
 import { collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db } from './firebase.js';
+import { db } from './firebase.js?v=10';
 
 const COLECCIONES = ['leads', 'clientes', 'pagos', 'tareas', 'gastos', 'gastos_fijos', 'consultas', 'contenido', 'movimientos', 'cargos'];
 

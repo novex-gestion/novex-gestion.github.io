@@ -23,8 +23,8 @@
 import {
   collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, increment,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, stamp } from './firebase.js';
-import { esc, modal, confirmar, toast } from './ui.js';
+import { db, stamp } from './firebase.js?v=10';
+import { esc, modal, confirmar, toast } from './ui.js?v=10';
 
 const TOPE_BASE64 = 700 * 1024;        // lo que entra en un documento de Firestore
 const LADO_MAXIMO = 1600;              // px del lado más largo de una imagen

@@ -20,8 +20,8 @@
 //
 // Saldo de la cuenta de un socio POSITIVO = NOVEX le debe a él.
 // ============================================================
-import { SOCIOS, participacion, nombreSocio } from './config.js';
-import { aFecha } from './ui.js';
+import { SOCIOS, participacion, nombreSocio } from './config.js?v=10';
+import { aFecha } from './ui.js?v=10';
 
 const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 

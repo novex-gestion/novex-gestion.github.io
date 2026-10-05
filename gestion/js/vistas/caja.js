@@ -6,14 +6,14 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, auth, stamp } from '../firebase.js';
-import { SOCIOS, TIPOS_MOVIMIENTO, nombreSocio, nombreTipoMovimiento } from '../config.js';
-import { cache, alCambiar } from '../datos.js';
-import { caja, cajaDelPeriodo, rotuloTipo } from '../finanzas.js';
+import { db, auth, stamp } from '../firebase.js?v=10';
+import { SOCIOS, TIPOS_MOVIMIENTO, nombreSocio, nombreTipoMovimiento } from '../config.js?v=10';
+import { cache, alCambiar } from '../datos.js?v=10';
+import { caja, cajaDelPeriodo, rotuloTipo } from '../finanzas.js?v=10';
 import {
   esc, fmtUsd, fmtFechaCorta, aInputFecha, fechaDeInput, periodoDe, nombrePeriodo, sumarMeses,
   modal, confirmar, toast, selectHtml,
-} from '../ui.js';
+} from '../ui.js?v=10';
 
 export function montarCaja(raiz) {
   let periodo = periodoDe();

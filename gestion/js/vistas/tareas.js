@@ -2,13 +2,13 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, auth, stamp } from '../firebase.js';
-import { SOCIOS, nombreSocio } from '../config.js';
-import { cache, alCambiar } from '../datos.js';
-import { montarAdjuntos, selloAdjuntos } from '../adjuntos.js';
+import { db, auth, stamp } from '../firebase.js?v=10';
+import { SOCIOS, nombreSocio } from '../config.js?v=10';
+import { cache, alCambiar } from '../datos.js?v=10';
+import { montarAdjuntos, selloAdjuntos } from '../adjuntos.js?v=10';
 import {
   esc, fmtFechaCorta, aFecha, aInputFecha, fechaDeInput, modal, confirmar, toast, selectHtml,
-} from '../ui.js';
+} from '../ui.js?v=10';
 
 export function montarTareas(raiz) {
   raiz.innerHTML = `

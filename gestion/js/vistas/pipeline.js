@@ -2,12 +2,12 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc, writeBatch, arrayUnion, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, auth, stamp } from '../firebase.js';
-import { ETAPAS, PAQUETES, ORIGENES, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js';
-import { cache, alCambiar } from '../datos.js';
+import { db, auth, stamp } from '../firebase.js?v=10';
+import { ETAPAS, PAQUETES, ORIGENES, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js?v=10';
+import { cache, alCambiar } from '../datos.js?v=10';
 import {
   esc, fmtUsd, fmtFecha, haceDias, aFecha, modal, confirmar, toast, selectHtml, fechaDeInput, aInputFecha, linkWa,
-} from '../ui.js';
+} from '../ui.js?v=10';
 
 export function montarPipeline(raiz) {
   raiz.innerHTML = `

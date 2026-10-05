@@ -1,7 +1,7 @@
 // Búsqueda global (Ctrl+K o la lupa del tope): leads, clientes, tareas y gastos.
-import { cache } from './datos.js';
-import { esc, fmtUsd, modal, normalizar } from './ui.js';
-import { detalleLead } from './vistas/pipeline.js';
+import { cache } from './datos.js?v=10';
+import { esc, fmtUsd, modal, normalizar } from './ui.js?v=10';
+import { detalleLead } from './vistas/pipeline.js?v=10';
 
 export function iniciarBusqueda() {
   const boton = document.getElementById('btn-buscar');

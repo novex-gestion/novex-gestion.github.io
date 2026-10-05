@@ -19,7 +19,7 @@
 // mercado se sigue moviendo y mañana ese valor ya no sería el de "hoy".
 // ============================================================
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db } from './firebase.js';
+import { db } from './firebase.js?v=10';
 
 const API_HOY = 'https://dolarapi.com/v1/dolares/blue';
 const API_FECHA = 'https://api.argentinadatos.com/v1/cotizaciones/dolares/blue';

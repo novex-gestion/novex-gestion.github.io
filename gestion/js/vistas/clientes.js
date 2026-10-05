@@ -2,10 +2,10 @@
 import {
   collection, addDoc, updateDoc, doc,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, stamp } from '../firebase.js';
-import { PAQUETES, nombrePaquete } from '../config.js';
-import { cache, alCambiar } from '../datos.js';
-import { esc, fmtUsd, modal, toast, selectHtml, fechaDeInput, aInputFecha } from '../ui.js';
+import { db, stamp } from '../firebase.js?v=10';
+import { PAQUETES, nombrePaquete } from '../config.js?v=10';
+import { cache, alCambiar } from '../datos.js?v=10';
+import { esc, fmtUsd, modal, toast, selectHtml, fechaDeInput, aInputFecha } from '../ui.js?v=10';
 
 const SELLO_ESTADO = {
   activo: 'sello--verde',

@@ -2,13 +2,13 @@
 import {
   collection, doc, addDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { db, auth } from '../firebase.js';
-import { TIPOS_INTERACCION, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js';
-import { cache, alCambiar } from '../datos.js';
-import { ccCliente, vencidoCliente, cobradoDe } from '../finanzas.js';
-import { esc, fmtUsd, fmtFecha, aFecha, nombrePeriodo, modal, confirmar, toast, selectHtml, linkWa } from '../ui.js';
-import { formularioCliente } from './clientes.js';
-import { formularioCargo } from './cobranzas.js';
+import { db, auth } from '../firebase.js?v=10';
+import { TIPOS_INTERACCION, PLANTILLAS_WA, nombrePaquete, nombreSocio } from '../config.js?v=10';
+import { cache, alCambiar } from '../datos.js?v=10';
+import { ccCliente, vencidoCliente, cobradoDe } from '../finanzas.js?v=10';
+import { esc, fmtUsd, fmtFecha, aFecha, nombrePeriodo, modal, confirmar, toast, selectHtml, linkWa } from '../ui.js?v=10';
+import { formularioCliente } from './clientes.js?v=10';
+import { formularioCargo } from './cobranzas.js?v=10';
 
 const NOMBRE_ESTADO = { activo: 'Activo', pausado: 'Pausado', baja: 'Baja' };
 const SELLO_ESTADO = { activo: 'sello--verde', pausado: 'sello--naranja', baja: 'sello--apagado' };
