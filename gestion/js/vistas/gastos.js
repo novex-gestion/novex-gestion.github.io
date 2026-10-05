@@ -77,10 +77,12 @@ export function montarGastos(raiz) {
         <p class="kpi__nombre">Se le refactura al cliente</p>
         <p class="kpi__valor verde">${fmtUsd(refacturado)}</p>
         <p class="kpi__pie">no es costo nuestro</p></div>` : ''}
-      ${sinRefacturar ? `<div class="kpi">
+      <div class="kpi">
         <p class="kpi__nombre">Sin refacturar</p>
-        <p class="kpi__valor naranja">${fmtUsd(sinRefacturar)}</p>
-        <p class="kpi__pie">${sinRefacturarN} ${sinRefacturarN === 1 ? 'gasto puesto a un cliente' : 'gastos puestos a clientes'}</p></div>` : ''}`;
+        <p class="kpi__valor ${sinRefacturar ? 'naranja' : ''}">${fmtUsd(sinRefacturar)}</p>
+        <p class="kpi__pie">${sinRefacturarN
+          ? `${sinRefacturarN} ${sinRefacturarN === 1 ? 'gasto de un cliente sin cobrar' : 'gastos de clientes sin cobrar'}`
+          : 'nada pendiente de cobrar'}</p></div>`;
 
     raiz.querySelector('#gas-nombre').textContent = nombrePeriodo(periodo).toUpperCase();
 
@@ -214,6 +216,22 @@ function formularioGasto(gasto, periodoVisible) {
           <select name="pagador">${selectHtml(opcionesPagador(), g.pagadoPor || (auth.currentUser && auth.currentUser.uid))}</select>
         </label>
       </div>
+
+      <!-- Lo que separa un costo propio de plata adelantada que vuelve. Se ve
+           siempre: escondido hasta elegir cliente, nadie descubria que existia. -->
+      <label class="refact" id="g-refact-caja">
+        <input type="checkbox" name="refacturar" ${g.cargoId || g.refacturar ? 'checked' : ''}
+          ${g.cargoId || !g.clienteId ? 'disabled' : ''}>
+        <span>
+          <b>Se lo refacturo al cliente</b>
+          <span class="refact__pie" id="g-refact-pie">${g.cargoId
+            ? 'Ya está en su cuenta corriente. Para cambiarlo, editá el cargo desde Cobros.'
+            : (g.clienteId
+              ? 'Le genera un cargo en la cuenta corriente por el mismo importe.'
+              : 'Elegí un cliente arriba para poder refacturárselo.')}</span>
+        </span>
+      </label>
+
       <div class="modal__acciones">
         ${esAlta
           ? '<button type="button" class="boton" data-cerrar>Cancelar</button>'
@@ -270,10 +288,17 @@ function formularioGasto(gasto, periodoVisible) {
   const selCliente = m.el.querySelector('[name="cliente"]');
   const cajaRefact = m.el.querySelector('#g-refact-caja');
   if (selCliente && cajaRefact) {
+    const tilde = cajaRefact.querySelector('[name="refacturar"]');
+    const pie = cajaRefact.querySelector('#g-refact-pie');
+    if (g.cargoId) tilde.dataset.yaEsta = '1';
     selCliente.addEventListener('change', () => {
+      if (tilde.dataset.yaEsta === '1') return;      // ya refacturado: no se toca
       const hay = !!selCliente.value;
-      cajaRefact.classList.toggle('refact--oculto', !hay);
-      if (!hay) cajaRefact.querySelector('[name="refacturar"]').checked = false;
+      tilde.disabled = !hay;
+      if (!hay) tilde.checked = false;
+      if (pie) pie.textContent = hay
+        ? 'Le genera un cargo en la cuenta corriente por el mismo importe.'
+        : 'Elegí un cliente arriba para poder refacturárselo.';
     });
   }
 
